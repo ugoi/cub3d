@@ -1,6 +1,11 @@
 # Define compiler
 CC = cc
 
+BREW = $(shell which brew | rev | cut -c 9- | rev)
+BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)
+GLFW = $(BREW)Cellar/glfw/$(BREW_VERSION)
+LIBS = -L$(GLFW)/lib -lglfw
+
 # Define source directories
 SRCDIR = src
 TEST_SRCDIR = test/src
@@ -13,7 +18,8 @@ UNITY_OBJDIR = test/Unity/obj
 
 # Define include directories
 INCLUDES = -I./src/include
-TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES)
+GLFW_INCLUDES = -I$(GLFW)/include/GLFW
+TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES) $(GLFW_INCLUDES)
 
 # Define compiler flags
 CFLAGS = -Wall -Wextra -Werror
@@ -45,30 +51,30 @@ all: $(EXE) $(TEST_EXE)
 
 # Define build target for production executable
 $(EXE): $(OBJ) $(MAIN_OBJ)
-	$(CC) $(CFLAGS) $(OBJ) $(MAIN_OBJ) -o $(EXE)
+	$(CC) $(CFLAGS) $(OBJ) $(MAIN_OBJ) $(LIBS) -o $(EXE)
 
 # Define build target for test executable
 $(TEST_EXE): $(OBJ) $(TEST_OBJ) $(UNITY_OBJ)
-	$(CC) $(CFLAGS) $(TEST_CFLAGS) $(TEST_INCLUDES) $(OBJ) $(TEST_OBJ) $(UNITY_OBJ) -o $(TEST_EXE)
+	$(CC) $(CFLAGS) $(TEST_CFLAGS) $(TEST_INCLUDES) $(OBJ) $(TEST_OBJ) $(UNITY_OBJ) $(LIBS) -o $(TEST_EXE)
 
 # Define build target for production object files
 $(OBJ): $(SRC)
 	mkdir -p obj
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(SRC) -o $(OBJ)
+	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) -c $(SRC) -o $(OBJ)
 
 # Define build target for main object files
 $(MAIN_OBJ): $(MAIN_SRC)
 	mkdir -p obj
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(MAIN_SRC) -o $(MAIN_OBJ)
+	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) -c $(MAIN_SRC) -o $(MAIN_OBJ)
 
 # Define build target for test object files
 $(TEST_OBJ): $(TEST_SRC) $(UNITY_SRC)
 	mkdir -p $(TEST_OBJDIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(TEST_SRC) -o $(TEST_OBJ)
+	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(TEST_SRC) -o $(TEST_OBJ)
 
 $(UNITY_OBJ): $(UNITY_SRC)
 	mkdir -p $(UNITY_OBJDIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(UNITY_SRC) -o $(UNITY_OBJDIR)/unity.o
+	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(UNITY_SRC) -o $(UNITY_OBJDIR)/unity.o
 
 # Define target to run tests
 test: all

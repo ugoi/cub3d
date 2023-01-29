@@ -6,9 +6,12 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:02:36 by stefan            #+#    #+#             */
-/*   Updated: 2023/01/29 16:02:40 by stefan           ###   ########.fr       */
+/*   Updated: 2023/01/29 22:52:04 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "my_module.h"
+#include "glfw3.h"
 
 int	my_module_add(int a, int b)
 {
