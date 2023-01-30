@@ -4,7 +4,7 @@ CC = cc
 BREW = $(shell which brew | rev | cut -c 9- | rev)
 BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)
 GLFW = $(BREW)Cellar/glfw/$(BREW_VERSION)
-LIBS = -L$(GLFW)/lib -lglfw
+LIBS = -L$(GLFW)/lib -lglfw -L./lib/MLX42 -lmlx42
 
 # Define source directories
 SRCDIR = src
@@ -19,7 +19,8 @@ UNITY_OBJDIR = test/Unity/obj
 # Define include directories
 INCLUDES = -I./src/include
 GLFW_INCLUDES = -I$(GLFW)/include/GLFW
-TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES) $(GLFW_INCLUDES)
+MLX42_INCLUDES = -I./lib/MLX42/include
+TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES) $(GLFW_INCLUDES) $(MLX42_INCLUDES)
 
 # Define compiler flags
 CFLAGS = -Wall -Wextra -Werror
@@ -35,7 +36,7 @@ TEST_SRC = $(TEST_SRCDIR)/test_my_module.c
 UNITY_SRC = $(UNITY_SRCDIR)/unity.c
 
 # Define object files
-OBJ = obj/my_module.o
+OBJ = $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 MAIN_OBJ = obj/main.o
 TEST_OBJ = $(TEST_OBJDIR)/test_my_module.o
 UNITY_OBJ = $(UNITY_OBJDIR)/unity.o
@@ -55,26 +56,21 @@ $(EXE): $(OBJ) $(MAIN_OBJ)
 
 # Define build target for test executable
 $(TEST_EXE): $(OBJ) $(TEST_OBJ) $(UNITY_OBJ)
-	$(CC) $(CFLAGS) $(TEST_CFLAGS) $(TEST_INCLUDES) $(OBJ) $(TEST_OBJ) $(UNITY_OBJ) $(LIBS) -o $(TEST_EXE)
+	$(CC) $(TEST_CFLAGS) $(OBJ) $(TEST_OBJ) $(UNITY_OBJ) $(LIBS) -o $(TEST_EXE)
 
 # Define build target for production object files
-$(OBJ): $(SRC)
-	mkdir -p obj
-	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) -c $(SRC) -o $(OBJ)
-
-# Define build target for main object files
-$(MAIN_OBJ): $(MAIN_SRC)
-	mkdir -p obj
-	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) -c $(MAIN_SRC) -o $(MAIN_OBJ)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(MLX42_INCLUDES) -c $< -o $@
 
 # Define build target for test object files
-$(TEST_OBJ): $(TEST_SRC) $(UNITY_SRC)
+$(TEST_OBJDIR)/%.o: $(TEST_SRCDIR)/%.c
 	mkdir -p $(TEST_OBJDIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(TEST_SRC) -o $(TEST_OBJ)
+	$(CC) $(CFLAGS) $(TEST_INCLUDES) -c $< -o $@
 
-$(UNITY_OBJ): $(UNITY_SRC)
+$(UNITY_OBJDIR)/%.o: $(UNITY_SRCDIR)/%.c
 	mkdir -p $(UNITY_OBJDIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(TEST_CFLAGS) $(TEST_INCLUDES) -c $(UNITY_SRC) -o $(UNITY_OBJDIR)/unity.o
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Define target to run tests
 test: all
