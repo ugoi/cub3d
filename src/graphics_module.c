@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 21:59:20 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 22:44:24 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,6 @@ int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 		}
 		top_left_x++;
 	}
-	printf("Player radians = %f\n", player->radians);
 	draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED));
 	return (0);
 }
@@ -148,7 +147,6 @@ char **scale_map(char **map, int scaling_factor)
 
 	return scaled_map;
 }
-
 
 int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 {
@@ -210,6 +208,55 @@ void	resize_func(int32_t width, int32_t height, void* data)
 	mlx_image_to_window(vars->mlx, vars->map_img, 0, 0);
 }
 
+void raycast3D(t_vars *vars)
+{
+	t_float_vector ray_pos;
+
+	
+	//Check horizontal lines
+	ray_pos.x = vars->player->pos.x;
+	ray_pos.y = vars->player->pos.y;
+	if (vars->player->radians > M_PI)
+		ray_pos.y = floorf(ray_pos.y);
+	else
+		ray_pos.y = ceilf(ray_pos.y);
+	ray_pos.x = ray_pos.x + (ray_pos.y - vars->player->pos.y) / tanf(vars->player->radians);
+	while (ray_pos.x >= 0 && ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y >= 0 && ray_pos.y < vars->map->raw_map_dimensions.y)
+	{
+		if (vars->map->raw_map[(int)ray_pos.y][(int)ray_pos.x] == '1')
+		{
+			printf("HORIZONTAL HIT: %f, %f\n", ray_pos.x, ray_pos.y);
+			break;
+		}
+		ray_pos.x += 1 / tanf(vars->player->radians);
+		if (vars->player->radians > M_PI)
+			ray_pos.y -= 1;
+		else
+			ray_pos.y += 1;
+	}
+	
+	//Check vertical lines
+	ray_pos.x = vars->player->pos.x;
+	ray_pos.y = vars->player->pos.y;
+	if (vars->player->radians > M_PI / 2 && vars->player->radians < 3 * M_PI / 2)
+		ray_pos.x = floorf(ray_pos.x);
+	else
+		ray_pos.x = ceilf(ray_pos.x);
+	ray_pos.y = ray_pos.y + (ray_pos.x - vars->player->pos.x) * tanf(vars->player->radians);
+	while (ray_pos.x >= 0 && ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y >= 0 && ray_pos.y < vars->map->raw_map_dimensions.y)
+	{
+		if (vars->map->raw_map[(int)ray_pos.y][(int)ray_pos.x] == '1')
+		{
+			printf("VERTICAL HIT: %f, %f\n", ray_pos.x, ray_pos.y);
+			break;
+		}
+		ray_pos.y += tanf(vars->player->radians);
+		if (vars->player->radians > M_PI / 2 && vars->player->radians < 3 * M_PI / 2)
+			ray_pos.x -= 1;
+		else
+			ray_pos.x += 1;
+	}
+}
 
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
@@ -249,6 +296,7 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 		vars->player->radians -= 0.1;
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
 	{
