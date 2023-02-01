@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 02:51:31 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 16:16:24 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,82 +58,66 @@ int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 	int				square_width;
 	int				square_height;
 	int				min_square_size;
-	
+	int				player_size;
+	int				top_left_x;
+	int				top_left_y;
+
 	map_dimensions = get_map_dimesnions(map->raw_map);
 	square_width = map_img->width / map_dimensions.x;
 	square_height = map_img->height / map_dimensions.y;
 	min_square_size = square_width < square_height ? square_width : square_height;
-	mlx_put_pixel(map_img, player->pos.x * min_square_size, player->pos.y * min_square_size, get_rgba(RED));
-	return (0);
-}
-
-int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
-{
-	t_int_vector	map_dimensions;
-	int				square_width;
-	int				square_height;
-	int				min_square_size;
-
-	(void)(player);
-	map_dimensions = get_map_dimesnions(map->raw_map);
-	square_width = map_img->width / map_dimensions.x;
-	square_height = map_img->height / map_dimensions.y;
-	min_square_size = square_width < square_height ? square_width : square_height;
+	player_size = min_square_size / 4;
+	top_left_x = player->pos.x * min_square_size;
 	
-	uint32_t x = 0;
-	uint32_t y = 0;
-	while (y < map_img->height && map->raw_map[y / min_square_size] )
+	while (top_left_x < player->pos.x * min_square_size + player_size)
 	{
-		while (x < map_img->width && map->raw_map[y / min_square_size][x / min_square_size])
+		printf("top_left_x: %d\n", top_left_x);
+		top_left_y = player->pos.y * min_square_size;
+		while (top_left_y < player->pos.y * min_square_size + player_size)
 		{
-			if (map->raw_map[y / min_square_size][x / min_square_size] == '1')
-			{
-				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
-			}
-			else
-			{
-				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
-			}
-			x++;
+			printf("top_left_y: %d\n", top_left_y);
+			mlx_put_pixel(map_img, top_left_x, top_left_y, get_rgba(GREEN));
+			top_left_y++;
 		}
-		x = 0;
-		y++;
+		top_left_x++;
 	}
 	return (0);
 }
 
+// int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
+// {
+// 	t_int_vector	map_dimensions;
+// 	int				square_width;
+// 	int				square_height;
+// 	int				min_square_size;
 
-int	draw_main(mlx_image_t *main_img)
-{
-	uint32_t x = 0;
-	uint32_t y = 0;
-	while (y < main_img->height)
-	{
-		while (x < main_img->width)
-		{
-			mlx_put_pixel(main_img, x, y, get_rgba(RED));
-			x++;
-		}
-		x = 0;
-		y++;
-	}
-	return (0);
-}
-
-void	resize_func(int32_t width, int32_t height, void* data)
-{
-	t_vars* vars;
+// 	(void)(player);
+// 	map_dimensions = get_map_dimesnions(map->raw_map);
+// 	square_width = map_img->width / map_dimensions.x;
+// 	square_height = map_img->height / map_dimensions.y;
+// 	min_square_size = square_width < square_height ? square_width : square_height;
 	
-	vars = (t_vars*)data;
-	mlx_delete_image(vars->mlx, vars->main_img);
-	vars->main_img = mlx_new_image(vars->mlx, width, height);
-	draw_main(vars->main_img);
-	mlx_image_to_window(vars->mlx, vars->main_img, 0, 0);
-	mlx_delete_image(vars->mlx, vars->map_img);
-	vars->map_img = mlx_new_image(vars->mlx, width / 4, width / 4);
-	draw_map(vars->map_img, vars->map, vars->player);
-	mlx_image_to_window(vars->mlx, vars->map_img, 0, 0);
-}
+// 	uint32_t x = 0;
+// 	uint32_t y = 0;
+// 	while (y < map_img->height && map->raw_map[y / min_square_size] )
+// 	{
+// 		while (x < map_img->width && map->raw_map[y / min_square_size][x / min_square_size])
+// 		{
+// 			if (map->raw_map[y / min_square_size][x / min_square_size] == '1')
+// 			{
+// 				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
+// 			}
+// 			else
+// 			{
+// 				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
+// 			}
+// 			x++;
+// 		}
+// 		x = 0;
+// 		y++;
+// 	}
+// 	return (0);
+// }
 
 char **scale_map(char **map, int scaling_factor)
 {
@@ -187,6 +171,67 @@ int get_scaling_factor(int width, int height, char **map)
 	scaling_factor = min(scaling_factors.x, scaling_factors.y);
 	return (scaling_factor);
 }
+
+int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
+{
+	int scaling_factor = get_scaling_factor(map_img->width, map_img->height, map->raw_map);
+	char **scaled_map = scale_map(map->raw_map, scaling_factor);
+	(void)(player);
+	
+	uint32_t x = 0;
+	uint32_t y = 0;
+	while (scaled_map[y])
+	{
+		while (scaled_map[y][x])
+		{
+			if (scaled_map[y][x] == '1')
+			{
+				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
+			}
+			else
+			{
+				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
+			}
+			x++;
+		}
+		x = 0;
+		y++;
+	}
+	return (0);
+}
+
+int	draw_main(mlx_image_t *main_img)
+{
+	uint32_t x = 0;
+	uint32_t y = 0;
+	while (y < main_img->height)
+	{
+		while (x < main_img->width)
+		{
+			mlx_put_pixel(main_img, x, y, get_rgba(RED));
+			x++;
+		}
+		x = 0;
+		y++;
+	}
+	return (0);
+}
+
+void	resize_func(int32_t width, int32_t height, void* data)
+{
+	t_vars* vars;
+	
+	vars = (t_vars*)data;
+	mlx_delete_image(vars->mlx, vars->main_img);
+	vars->main_img = mlx_new_image(vars->mlx, width, height);
+	draw_main(vars->main_img);
+	mlx_image_to_window(vars->mlx, vars->main_img, 0, 0);
+	mlx_delete_image(vars->mlx, vars->map_img);
+	vars->map_img = mlx_new_image(vars->mlx, width / 4, width / 4);
+	draw_map(vars->map_img, vars->map, vars->player);
+	mlx_image_to_window(vars->mlx, vars->map_img, 0, 0);
+}
+
 
 
 int32_t	init_window(t_map *map, t_player *player)
