@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 02:52:31 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 19:54:19 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdint.h>
 # include "MLX42.h"
+# define PI 3.14159265358979323846
 
 typedef struct s_int_vector
 {
@@ -32,13 +33,13 @@ typedef struct s_player
 {
 	t_float_vector	pos;
 	t_float_vector	dir;
+	float			radians;
 }				t_player;
 
 typedef struct s_map
 {
-	char	**raw_map;
-	char	**mini_map;
-	char	**big_map;
+	char			**raw_map;
+	t_int_vector	raw_map_dimensions;
 }				t_map;
 
 typedef struct s_vars
@@ -52,6 +53,6 @@ typedef struct s_vars
 
 int32_t	init_window(t_map *map, t_player *player);
 char	**scale_map(char **map, int scaling_factor);
-int		get_scaling_factor(int width, int height, char **map);
+int		get_scaling_factor(int width, int height, t_map *map);
 
 #endif

@@ -32,58 +32,62 @@ void print_map(char **map)
 }
 
 void test_get_scale_factor(void) {
-    char **map = (char **)malloc(sizeof(char *) * 4);
+    t_map map;
+    char **mini_map;
 
-    map[0] = (char *)malloc(sizeof(char) * 5);
-    map[0][0] = '1';
-    map[0][1] = '1';
-    map[0][2] = '1';
-    map[0][3] = '1';
-    map[0][4] = '\0';
-    map[1] = (char *)malloc(sizeof(char) * 5);
-    map[1][0] = '1';
-    map[1][1] = '0';
-    map[1][2] = '0';
-    map[1][3] = '1';
-    map[1][4] = '\0';
-    map[2] = (char *)malloc(sizeof(char) * 5);
-    map[2][0] = '1';
-    map[2][1] = '0';
-    map[2][2] = '0';
-    map[2][3] = '1';
-    map[2][4] = '\0';
-    map[3] = NULL;
-    TEST_ASSERT_EQUAL_INT(get_scaling_factor(8, 8, map), 2);
+    mini_map = (char **)malloc(sizeof(char *) * 4);
+
+   mini_map[0] = (char *)malloc(sizeof(char) * 5);
+   mini_map[0][0] = '1';
+   mini_map[0][1] = '1';
+   mini_map[0][2] = '1';
+   mini_map[0][3] = '1';
+   mini_map[0][4] = '\0';
+   mini_map[1] = (char *)malloc(sizeof(char) * 5);
+   mini_map[1][0] = '1';
+   mini_map[1][1] = '0';
+   mini_map[1][2] = '0';
+   mini_map[1][3] = '1';
+   mini_map[1][4] = '\0';
+   mini_map[2] = (char *)malloc(sizeof(char) * 5);
+   mini_map[2][0] = '1';
+   mini_map[2][1] = '0';
+   mini_map[2][2] = '0';
+   mini_map[2][3] = '1';
+   mini_map[2][4] = '\0';
+   mini_map[3] = NULL;
+    TEST_ASSERT_EQUAL_INT(get_scaling_factor(8, 8, &map), 2);
 }
 
 void test_scale_map(void) {
 	int scaling_factor;
 	char **scaled_map;
-    char **map = (char **)malloc(sizeof(char *) * 4);
+    t_map map;
+    map.raw_map = (char **)malloc(sizeof(char *) * 4);
 
-    map[0] = (char *)malloc(sizeof(char) * 5);
-    map[0][0] = '1';
-    map[0][1] = '1';
-    map[0][2] = '1';
-    map[0][3] = '1';
-    map[0][4] = '\0';
-    map[1] = (char *)malloc(sizeof(char) * 5);
-    map[1][0] = '1';
-    map[1][1] = '0';
-    map[1][2] = '0';
-    map[1][3] = '1';
-    map[1][4] = '\0';
-    map[2] = (char *)malloc(sizeof(char) * 5);
-    map[2][0] = '1';
-    map[2][1] = '0';
-    map[2][2] = '0';
-    map[2][3] = '1';
-    map[2][4] = '\0';
-    map[3] = NULL;
+    map.raw_map[0] = (char *)malloc(sizeof(char) * 5);
+    map.raw_map[0][0] = '1';
+    map.raw_map[0][1] = '1';
+    map.raw_map[0][2] = '1';
+    map.raw_map[0][3] = '1';
+    map.raw_map[0][4] = '\0';
+    map.raw_map[1] = (char *)malloc(sizeof(char) * 5);
+    map.raw_map[1][0] = '1';
+    map.raw_map[1][1] = '0';
+    map.raw_map[1][2] = '0';
+    map.raw_map[1][3] = '1';
+    map.raw_map[1][4] = '\0';
+    map.raw_map[2] = (char *)malloc(sizeof(char) * 5);
+    map.raw_map[2][0] = '1';
+    map.raw_map[2][1] = '0';
+    map.raw_map[2][2] = '0';
+    map.raw_map[2][3] = '1';
+    map.raw_map[2][4] = '\0';
+    map.raw_map[3] = NULL;
 
-    scaling_factor = get_scaling_factor(8, 8, map);
-    scaled_map = scale_map(map, scaling_factor);
-    print_map(map);
+    scaling_factor = get_scaling_factor(8, 8, &map);
+    scaled_map = scale_map(map.raw_map, scaling_factor);
+    print_map(map.raw_map);
 	print_map(scaled_map);
 	TEST_ASSERT_EQUAL_INT(scaling_factor, 2);
     TEST_ASSERT_EQUAL_STRING(scaled_map[0], "11111111");

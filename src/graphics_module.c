@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 16:16:24 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 21:59:20 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,100 +24,89 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-
 static void	error(void)
 {
 	puts(mlx_strerror(mlx_errno));
 	exit(EXIT_FAILURE);
 }
 
-t_int_vector	get_map_dimesnions(char **map)
+int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color)
 {
-	t_int_vector	map_dimensions;
-	int				max_x;
+	int		x;
+	int		y;
+	int		dx;
+	int		dy;
+	int		sx;
+	int		sy;
+	int		err;
+	int		e2;
 
-	map_dimensions.x = 0;
-	map_dimensions.y = 0;
-	while (map[map_dimensions.y])
+	x = start.x;
+	y = start.y;
+	dx = abs(end.x - start.x);
+	dy = abs(end.y - start.y);
+	sx = start.x < end.x ? 1 : -1;
+	sy = start.y < end.y ? 1 : -1;
+	err = (dx > dy ? dx : -dy) / 2;
+	while (1)
 	{
-		max_x = 0;
-		while (map[map_dimensions.y][max_x])
+		mlx_put_pixel(img, x, y, color);
+		if (x == end.x && y == end.y)
+			break ;
+		e2 = err;
+		if (e2 > -dx)
 		{
-			max_x++;
+			err -= dy;
+			x += sx;
 		}
-		if (max_x > map_dimensions.x)
-			map_dimensions.x = max_x;
-		map_dimensions.y++;
+		if (e2 < dy)
+		{
+			err += dx;
+			y += sy;
+		}
 	}
-	return (map_dimensions);
+	return (0);
+}
+
+int get_scaling_factor(int width, int height, t_map *map)
+{
+	t_int_vector map_dimensions = map->raw_map_dimensions;
+	t_int_vector scaling_factors;
+	int scaling_factor;
+
+	scaling_factors.x = width / map_dimensions.x;
+	scaling_factors.y = height / map_dimensions.y;
+	scaling_factor = min(scaling_factors.x, scaling_factors.y);
+	return (scaling_factor);
 }
 
 int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 {
-	t_int_vector	map_dimensions;
-	int				square_width;
-	int				square_height;
-	int				min_square_size;
+	int				scaling_factor;
 	int				player_size;
 	int				top_left_x;
 	int				top_left_y;
+	t_int_vector	scaled_player_pos;
 
-	map_dimensions = get_map_dimesnions(map->raw_map);
-	square_width = map_img->width / map_dimensions.x;
-	square_height = map_img->height / map_dimensions.y;
-	min_square_size = square_width < square_height ? square_width : square_height;
-	player_size = min_square_size / 4;
-	top_left_x = player->pos.x * min_square_size;
-	
-	while (top_left_x < player->pos.x * min_square_size + player_size)
+	scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
+	scaled_player_pos.x = player->pos.x * scaling_factor;
+	scaled_player_pos.y = player->pos.y * scaling_factor;
+	player_size = scaling_factor / 4;
+	top_left_x = player->pos.x * scaling_factor;
+	while (top_left_x < player->pos.x * scaling_factor + player_size)
 	{
-		printf("top_left_x: %d\n", top_left_x);
-		top_left_y = player->pos.y * min_square_size;
-		while (top_left_y < player->pos.y * min_square_size + player_size)
+		top_left_y = player->pos.y * scaling_factor;
+		while (top_left_y < player->pos.y * scaling_factor + player_size)
 		{
-			printf("top_left_y: %d\n", top_left_y);
 			mlx_put_pixel(map_img, top_left_x, top_left_y, get_rgba(GREEN));
 			top_left_y++;
 		}
 		top_left_x++;
 	}
+	printf("Player radians = %f\n", player->radians);
+	draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED));
 	return (0);
 }
-
-// int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
-// {
-// 	t_int_vector	map_dimensions;
-// 	int				square_width;
-// 	int				square_height;
-// 	int				min_square_size;
-
-// 	(void)(player);
-// 	map_dimensions = get_map_dimesnions(map->raw_map);
-// 	square_width = map_img->width / map_dimensions.x;
-// 	square_height = map_img->height / map_dimensions.y;
-// 	min_square_size = square_width < square_height ? square_width : square_height;
-	
-// 	uint32_t x = 0;
-// 	uint32_t y = 0;
-// 	while (y < map_img->height && map->raw_map[y / min_square_size] )
-// 	{
-// 		while (x < map_img->width && map->raw_map[y / min_square_size][x / min_square_size])
-// 		{
-// 			if (map->raw_map[y / min_square_size][x / min_square_size] == '1')
-// 			{
-// 				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
-// 			}
-// 			else
-// 			{
-// 				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
-// 			}
-// 			x++;
-// 		}
-// 		x = 0;
-// 		y++;
-// 	}
-// 	return (0);
-// }
 
 char **scale_map(char **map, int scaling_factor)
 {
@@ -160,21 +149,10 @@ char **scale_map(char **map, int scaling_factor)
 	return scaled_map;
 }
 
-int get_scaling_factor(int width, int height, char **map)
-{
-	t_int_vector map_dimensions = get_map_dimesnions(map);
-	t_int_vector scaling_factors;
-	int scaling_factor;
-
-	scaling_factors.x = width / map_dimensions.x;
-	scaling_factors.y = height / map_dimensions.y;
-	scaling_factor = min(scaling_factors.x, scaling_factors.y);
-	return (scaling_factor);
-}
 
 int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 {
-	int scaling_factor = get_scaling_factor(map_img->width, map_img->height, map->raw_map);
+	int scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
 	char **scaled_map = scale_map(map->raw_map, scaling_factor);
 	(void)(player);
 	
@@ -233,6 +211,57 @@ void	resize_func(int32_t width, int32_t height, void* data)
 }
 
 
+void my_keyhook(mlx_key_data_t keydata, void* param)
+{
+	t_vars *vars;
+	
+	vars = (t_vars*)param;
+	if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
+	{	
+		vars->player->pos.x += 0.1 * cos(vars->player->radians);
+		vars->player->pos.y += 0.1 * sin(vars->player->radians);
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
+	{
+		vars->player->pos.x -= 0.1 * cos(vars->player->radians);
+		vars->player->pos.y -= 0.1 * sin(vars->player->radians);
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
+	{
+		vars->player->pos.x -= 0.1 * cos(vars->player->radians + M_PI / 2);
+		vars->player->pos.y -= 0.1 * sin(vars->player->radians + M_PI / 2);
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
+	{
+		vars->player->pos.x += 0.1 * cos(vars->player->radians + M_PI / 2);
+		vars->player->pos.y += 0.1 * sin(vars->player->radians + M_PI / 2);
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
+	{
+		vars->player->radians -= 0.1;
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
+	{
+		vars->player->radians += 0.1;
+		draw_map(vars->map_img, vars->map, vars->player);
+		draw_player(vars->map_img, vars->player, vars->map);
+	}
+	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
+	{
+		exit(0);
+	}
+}
+
 
 int32_t	init_window(t_map *map, t_player *player)
 {
@@ -240,7 +269,7 @@ int32_t	init_window(t_map *map, t_player *player)
 
 	vars.map = map;
 	vars.player = player;
-	vars.mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
+	vars.mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
 	if (!vars.mlx)
 		error();
 	vars.main_img = mlx_new_image(vars.mlx, vars.mlx->width, vars.mlx->height);
@@ -257,6 +286,7 @@ int32_t	init_window(t_map *map, t_player *player)
 	if (mlx_image_to_window(vars.mlx, vars.map_img, 0, 0) < 0)
 		error();
 	mlx_resize_hook(vars.mlx, resize_func, &vars);
+	mlx_key_hook(vars.mlx, my_keyhook, &vars);
 	mlx_loop(vars.mlx);
 	mlx_delete_image(vars.mlx, vars.map_img);
 	mlx_delete_image(vars.mlx, vars.main_img);

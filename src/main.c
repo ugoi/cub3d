@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 15:49:03 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 20:57:22 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <math.h>
 
 char *get_next_line(int fd) 
 {
@@ -49,7 +50,6 @@ char	**init_raw_map(char *map_file)
 		i++;
 	}
 	close(fd);
-	printf("i = %d\n", i);
 	fd = open(map_file, O_RDONLY);
 	map = malloc(sizeof(char *) * (i + 1));
 	i = 0;
@@ -88,13 +88,13 @@ int init_player(t_map *map, t_player *player)
 				player->pos.y = i;
 				player->pos.x = j;
 				if (map->raw_map[i][j] == 'N')
-					player->dir = (t_float_vector){0, 1};
+					player->radians = 3.0 / 2.0 * M_PI;
 				else if (map->raw_map[i][j] == 'S')
-					player->dir = (t_float_vector){0, -1};
+					player->radians = M_PI / 2.0;
 				else if (map->raw_map[i][j] == 'W')
-					player->dir = (t_float_vector){-1, 0};
+					player->radians = M_PI;
 				else if (map->raw_map[i][j] == 'E')
-					player->dir = (t_float_vector){1, 0};
+					player->radians = 0;
 				return (0);
 			}
 			j++;
@@ -108,6 +108,27 @@ int init_player(t_map *map, t_player *player)
 #include <stdlib.h>
 
 
+t_int_vector	get_map_dimesnions(char **map)
+{
+	t_int_vector	map_dimensions;
+	int				max_x;
+
+	map_dimensions.x = 0;
+	map_dimensions.y = 0;
+	while (map[map_dimensions.y])
+	{
+		max_x = 0;
+		while (map[map_dimensions.y][max_x])
+		{
+			max_x++;
+		}
+		if (max_x > map_dimensions.x)
+			map_dimensions.x = max_x;
+		map_dimensions.y++;
+	}
+	return (map_dimensions);
+}
+
 int	main(void)
 {
 	t_map		map;
@@ -116,7 +137,7 @@ int	main(void)
 	
 	map_file = "./maps/map1.txt";
 	map.raw_map = init_raw_map(map_file);
-	printf("map\n");
+	map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
 	init_player(&map, &player);
 	init_window(&map, &player);
 }
