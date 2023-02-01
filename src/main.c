@@ -6,58 +6,117 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/01/30 18:56:35 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/01 01:55:24 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "my_module.h"
-#include <stdio.h>
-#include "MLX42.h"
-
-#include <stdlib.h>
+#include "graphics_module.h"
+#include "./include/colors.h"
 #include <stdio.h>
 #include <unistd.h>
-#define WIDTH 256
-#define HEIGHT 256
+#include <stdlib.h>
+#include <memory.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-// Exit the program as failure.
-static void ft_error(void)
+char *get_next_line(int fd) 
 {
-	fprintf(stderr, "%s", mlx_strerror(mlx_errno));
-	exit(EXIT_FAILURE);
+    char *string = malloc(10000), *copy = string;
+    while (read(fd, copy, 1) > 0 && *copy++ != '\n');
+    return (copy > string) ? (*copy = 0, string) : (free(string), NULL);
 }
 
-// Print the window width and height.
-static void ft_hook(void* param)
+char	**init_raw_map(char *map_file)
 {
-	const mlx_t* mlx = param;
+	char	**map;
+	int		fd;
+	int		i;
+	int		j;
+	char	*line;
 
-	printf("WIDTH: %d | HEIGHT: %d\n", mlx->width, mlx->height);
+	fd = open(map_file, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Error opening map file %s\n", map_file);
+		exit(1);
+	}
+	i = 0;
+	while (get_next_line(fd))
+	{
+		i++;
+	}
+	close(fd);
+	printf("i = %d\n", i);
+	fd = open(map_file, O_RDONLY);
+	map = malloc(sizeof(char *) * (i + 1));
+	i = 0;
+	line = get_next_line(fd);
+	while (line)
+	{
+		j = 0;
+		map[i] = malloc(sizeof(char) * 10);
+		while (line[j] && line[j] != '\n')
+		{
+			map[i][j] = line[j];
+			j++;
+		}
+		map[i][j] = 0;
+		i++;
+		line = get_next_line(fd);
+	}
+	map[i] = NULL;
+	close(fd);
+	return (map);
 }
 
-int32_t	main(void)
+int init_player(t_map *map, t_player *player)
 {
+	int			i;
+	int			j;
 
-	// MLX allows you to define its core behaviour before startup.
-	mlx_set_setting(MLX_MAXIMIZED, true);
-	mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "42Balls", true);
-	if (!mlx)
-		ft_error();
+	i = 0;
+	while (map->raw_map[i])
+	{
+		j = 0;
+		while (map->raw_map[i][j])
+		{
+			if (map->raw_map[i][j] == 'N' || map->raw_map[i][j] == 'S' || map->raw_map[i][j] == 'W' || map->raw_map[i][j] == 'E')
+			{
+				player->pos.y = i;
+				player->pos.x = j;
+				if (map->raw_map[i][j] == 'N')
+					player->dir = (t_float_vector){0, 1};
+				else if (map->raw_map[i][j] == 'S')
+					player->dir = (t_float_vector){0, -1};
+				else if (map->raw_map[i][j] == 'W')
+					player->dir = (t_float_vector){-1, 0};
+				else if (map->raw_map[i][j] == 'E')
+					player->dir = (t_float_vector){1, 0};
+				return (0);
+			}
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}
 
-	/* Do stuff */
+#include <math.h>
+#include <stdlib.h>
 
-	// Create and display the image.
-	mlx_image_t* img = mlx_new_image(mlx, 256, 256);
-	if (!img || (mlx_image_to_window(mlx, img, 0, 0) < 0))
-		ft_error();
 
-	// Even after the image is being displayed, we can still modify the buffer.
-	mlx_put_pixel(img, 0, 0, 0xFF0000FF);
-
-	// Register a hook and pass mlx as an optional param.
-	// NOTE: Do this before calling mlx_loop!
-	mlx_loop_hook(mlx, ft_hook, mlx);
-	mlx_loop(mlx);
-	mlx_terminate(mlx);
-	return (EXIT_SUCCESS);
+int	main(void)
+{
+	t_map		map;
+	char		*map_file;
+	t_player	player;
+	
+	map_file = "./maps/map1.txt";
+	map.raw_map = init_raw_map(map_file);
+	printf("map\n");
+	init_player(&map, &player);
+	init_window(&map, &player);
 }

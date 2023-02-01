@@ -1,5 +1,7 @@
-#include "my_module.h"
+#include "graphics_module.h"
 #include "unity.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void setUp(void) {
     // set stuff up here
@@ -9,13 +11,94 @@ void tearDown(void) {
     // clean stuff up here
 }
 
-void test_my_module(void) {
-    TEST_ASSERT_EQUAL_INT(42, my_module_add(40, 2));
+void print_string(const char *str)
+{
+    int i = 0;
+    while (str[i] != '\0') {
+        UNITY_OUTPUT_CHAR(str[i]);
+        i++;
+    }
+}
+
+void print_map(char **map)
+{
+	int i = 0;
+	while (map[i])
+	{
+		print_string(map[i]);
+		print_string("\n");
+		i++;
+	}
+}
+
+void test_get_scale_factor(void) {
+    char **map = (char **)malloc(sizeof(char *) * 4);
+
+    map[0] = (char *)malloc(sizeof(char) * 5);
+    map[0][0] = '1';
+    map[0][1] = '1';
+    map[0][2] = '1';
+    map[0][3] = '1';
+    map[0][4] = '\0';
+    map[1] = (char *)malloc(sizeof(char) * 5);
+    map[1][0] = '1';
+    map[1][1] = '0';
+    map[1][2] = '0';
+    map[1][3] = '1';
+    map[1][4] = '\0';
+    map[2] = (char *)malloc(sizeof(char) * 5);
+    map[2][0] = '1';
+    map[2][1] = '0';
+    map[2][2] = '0';
+    map[2][3] = '1';
+    map[2][4] = '\0';
+    map[3] = NULL;
+    TEST_ASSERT_EQUAL_INT(get_scaling_factor(8, 8, map), 2);
+}
+
+void test_scale_map(void) {
+	int scaling_factor;
+	char **scaled_map;
+    char **map = (char **)malloc(sizeof(char *) * 4);
+
+    map[0] = (char *)malloc(sizeof(char) * 5);
+    map[0][0] = '1';
+    map[0][1] = '1';
+    map[0][2] = '1';
+    map[0][3] = '1';
+    map[0][4] = '\0';
+    map[1] = (char *)malloc(sizeof(char) * 5);
+    map[1][0] = '1';
+    map[1][1] = '0';
+    map[1][2] = '0';
+    map[1][3] = '1';
+    map[1][4] = '\0';
+    map[2] = (char *)malloc(sizeof(char) * 5);
+    map[2][0] = '1';
+    map[2][1] = '0';
+    map[2][2] = '0';
+    map[2][3] = '1';
+    map[2][4] = '\0';
+    map[3] = NULL;
+
+    scaling_factor = get_scaling_factor(8, 8, map);
+    scaled_map = scale_map(map, scaling_factor);
+    print_map(map);
+	print_map(scaled_map);
+	TEST_ASSERT_EQUAL_INT(scaling_factor, 2);
+    TEST_ASSERT_EQUAL_STRING(scaled_map[0], "11111111");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[1], "11111111");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[2], "11000011");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[3], "11000011");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[4], "11000011");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[5], "11000011");
+    TEST_ASSERT_EQUAL_STRING(scaled_map[6], NULL);
 }
 
 // not needed when using generate_test_runner.rb
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_my_module);
+    RUN_TEST(test_get_scale_factor);
+    RUN_TEST(test_scale_map);
     return UNITY_END();
 }

@@ -42,8 +42,8 @@ TEST_OBJ = $(TEST_OBJDIR)/test_my_module.o
 UNITY_OBJ = $(UNITY_OBJDIR)/unity.o
 
 # Define executables
-EXE = my_module
-TEST_EXE = my_module_tests
+EXE = a.out
+TEST_EXE = test.out
 
 # Define default target
 all: $(EXE) $(TEST_EXE)
@@ -76,6 +76,9 @@ $(UNITY_OBJDIR)/%.o: $(UNITY_SRCDIR)/%.c
 test: all
 	./$(TEST_EXE)
 
+run: all
+	./$(EXE)
+
 # Define target to clean up build files
 clean:
 	rm -rf obj $(TEST_OBJDIR)
@@ -84,5 +87,9 @@ fclean : clean
 	rm -f $(EXE) $(TEST_EXE)
 
 re : fclean all
+
+debug: CFLAGS += -g -fsanitize=address
+debug: TEST_CFLAGS += -g -fsanitize=address
+debug: re
 
 .PHONY: all test clean fclean re
