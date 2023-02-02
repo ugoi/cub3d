@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 22:44:24 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/02 20:08:16 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 	int scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
 	char **scaled_map = scale_map(map->raw_map, scaling_factor);
 	(void)(player);
-	
+
 	uint32_t x = 0;
 	uint32_t y = 0;
 	while (scaled_map[y])
@@ -196,7 +196,7 @@ int	draw_main(mlx_image_t *main_img)
 void	resize_func(int32_t width, int32_t height, void* data)
 {
 	t_vars* vars;
-	
+
 	vars = (t_vars*)data;
 	mlx_delete_image(vars->mlx, vars->main_img);
 	vars->main_img = mlx_new_image(vars->mlx, width, height);
@@ -208,14 +208,29 @@ void	resize_func(int32_t width, int32_t height, void* data)
 	mlx_image_to_window(vars->mlx, vars->map_img, 0, 0);
 }
 
-void raycast3D(t_vars *vars)
+void normalize_vector(t_float_vector *vector)
+{
+	float length = sqrtf(vector->x * vector->x + vector->y * vector->y);
+	vector->x /= length;
+	vector->y /= length;
+}
+
+void raycast3D_borken(t_vars *vars)
 {
 	t_float_vector ray_pos;
+	t_float_vector horizontal_intersection;
+	t_float_vector vertical_intersection;
+	float			horizontal_distance;
+	float			vertical_distance;
+	int				scaling_factor;
 
-	
+
 	//Check horizontal lines
+	scaling_factor = get_scaling_factor(vars->map_img->width, vars->map_img->height, vars->map);
 	ray_pos.x = vars->player->pos.x;
 	ray_pos.y = vars->player->pos.y;
+	horizontal_distance = 0;
+	vertical_distance = 0;
 	if (vars->player->radians > M_PI)
 		ray_pos.y = floorf(ray_pos.y);
 	else
@@ -225,7 +240,12 @@ void raycast3D(t_vars *vars)
 	{
 		if (vars->map->raw_map[(int)ray_pos.y][(int)ray_pos.x] == '1')
 		{
-			printf("HORIZONTAL HIT: %f, %f\n", ray_pos.x, ray_pos.y);
+			printf("Horizontal intersection at (%f, %f)\n", ray_pos.x, ray_pos.y);
+			printf("Scaling factor: %d\n", scaling_factor);
+			draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos.x * scaling_factor, ray_pos.y * scaling_factor}, get_rgba(GREEN));
+			horizontal_distance = hypotf(ray_pos.x - vars->player->pos.x, ray_pos.y - vars->player->pos.y);
+			horizontal_intersection.x = ray_pos.x;
+			horizontal_intersection.y = ray_pos.y;
 			break;
 		}
 		ray_pos.x += 1 / tanf(vars->player->radians);
@@ -234,7 +254,7 @@ void raycast3D(t_vars *vars)
 		else
 			ray_pos.y += 1;
 	}
-	
+
 	//Check vertical lines
 	ray_pos.x = vars->player->pos.x;
 	ray_pos.y = vars->player->pos.y;
@@ -247,7 +267,11 @@ void raycast3D(t_vars *vars)
 	{
 		if (vars->map->raw_map[(int)ray_pos.y][(int)ray_pos.x] == '1')
 		{
-			printf("VERTICAL HIT: %f, %f\n", ray_pos.x, ray_pos.y);
+			printf("Vertical intersection at (%f, %f)\n", ray_pos.x, ray_pos.y);
+			draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos.x * scaling_factor, ray_pos.y * scaling_factor}, get_rgba(BLUE));
+			vertical_distance = hypotf(ray_pos.x - vars->player->pos.x, ray_pos.y - vars->player->pos.y);
+			vertical_intersection.x = ray_pos.x;
+			vertical_intersection.y = ray_pos.y;
 			break;
 		}
 		ray_pos.y += tanf(vars->player->radians);
@@ -256,19 +280,121 @@ void raycast3D(t_vars *vars)
 		else
 			ray_pos.x += 1;
 	}
+
+	//Draw the closest intersection
+	if (horizontal_distance < vertical_distance)
+	{
+		// printf("HORIZONTAL IS CLOSEST\n");
+		// draw_vector(vars->main_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){horizontal_intersection.x * scaling_factor, horizontal_intersection.y * scaling_factor}, get_rgba(RED));
+	}
+	else
+	{
+		// printf("VERTICAL IS CLOSEST\n");
+		// draw_vector(vars->main_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){vertical_intersection.x * scaling_factor, vertical_intersection.y * scaling_factor}, get_rgba(RED));
+	}
+}
+
+void raycast3D(t_vars *vars)
+{
+	int i;
+	float ray_angle;
+	float ray_pos_x;
+	float ray_pos_y;
+	int scaling_factor;
+	float offset_x;
+	float offset_y;
+	int		dof;
+	t_int_vector ray_pos_in_map;
+
+	scaling_factor = get_scaling_factor(vars->map_img->width, vars->main_img->height, vars->map);
+
+	ray_angle = vars->player->radians;
+	i = 0;
+	while (i < 1)
+	{
+		//Check horizontal lines
+		dof = 0;
+		if (ray_angle < M_PI)
+		{
+			ray_pos_y = ceilf(vars->player->pos.y);
+			ray_pos_x = vars->player->pos.x + (ray_pos_y - vars->player->pos.y) / tanf(ray_angle);
+			offset_y = 1;
+			offset_x = offset_y / tanf(ray_angle);
+			// offset_x = atanf(ray_angle);
+		}
+		else
+		{
+			ray_pos_y = floorf(vars->player->pos.y);
+			ray_pos_x = vars->player->pos.x + (ray_pos_y - vars->player->pos.y) / tanf(ray_angle);
+			offset_y = -1;
+			offset_x = offset_y / tanf(ray_angle);
+		}
+		if (ray_angle == 0 || ray_angle == M_PI)
+		{
+			ray_pos_x = vars->player->pos.x;
+			ray_pos_y = vars->player->pos.y;
+			offset_x = 0;
+			offset_y = 0;
+		}
+
+		while (dof < 8)
+		{
+			if (offset_y < 0)
+				ray_pos_in_map.y = (int)ray_pos_y - 1;
+			else
+				ray_pos_in_map.y = (int)ray_pos_y;
+			ray_pos_in_map.x = (int)ray_pos_x;
+			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
+			{
+				printf("Horizontal intersection at (%f, %f)\n", ray_pos_x, ray_pos_y);
+				break;
+			}
+			else
+			{
+				ray_pos_x += offset_x;
+				ray_pos_y += offset_y;
+			}
+			// printf("Ray pos in map: (%d, %d)\n", ray_pos_in_map.x, ray_pos_in_map.y);
+			// printf("Map Value: %c\n", vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x]);
+			dof++;
+		}
+
+
+		if (ray_pos_x < vars->map->raw_map_dimensions.x && ray_pos_y < vars->map->raw_map_dimensions.y && ray_pos_x >= 0 && ray_pos_y >= 0)
+			draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos_x * scaling_factor, ray_pos_y * scaling_factor}, get_rgba(RED));
+		// draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos_x * scaling_factor, ray_pos_y * scaling_factor}, get_rgba(BLUE));
+		// printf("Ray pos: (%f, %f)\n", ray_pos_x, ray_pos_y);
+		// printf("Offset: (%f, %f)\n", offset_x, offset_y);
+		i++;
+	}
+	{
+		/* code */
+	}
+
+}
+
+float	add_radians(float radians, float radians_to_add)
+{
+	radians += radians_to_add;
+	if (radians > 2 * M_PI)
+		radians -= 2 * M_PI;
+	else if (radians < 0)
+		radians += 2 * M_PI;
+	return (radians);
 }
 
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
 	t_vars *vars;
-	
+
 	vars = (t_vars*)param;
 	if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
-	{	
+	{
 		vars->player->pos.x += 0.1 * cos(vars->player->radians);
 		vars->player->pos.y += 0.1 * sin(vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
 	{
@@ -276,6 +402,7 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 		vars->player->pos.y -= 0.1 * sin(vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
 	{
@@ -283,6 +410,7 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 		vars->player->pos.y -= 0.1 * sin(vars->player->radians + M_PI / 2);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
 	{
@@ -290,26 +418,29 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 		vars->player->pos.y += 0.1 * sin(vars->player->radians + M_PI / 2);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
 	{
-		vars->player->radians -= 0.1;
+		vars->player->radians = add_radians(vars->player->radians, -0.1);
+		// printf("Player angle: %f\n", vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
 		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
 	{
-		vars->player->radians += 0.1;
+		vars->player->radians = add_radians(vars->player->radians, 0.1);
+		// printf("Player angle: %f\n", vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
+		raycast3D(vars);
 	}
 	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
 	{
 		exit(0);
 	}
 }
-
 
 int32_t	init_window(t_map *map, t_player *player)
 {

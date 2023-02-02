@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 20:57:22 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/02 17:31:43 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <math.h>
 
-char *get_next_line(int fd) 
+char *get_next_line(int fd)
 {
     char *string = malloc(10000), *copy = string;
     while (read(fd, copy, 1) > 0 && *copy++ != '\n');
@@ -104,10 +104,6 @@ int init_player(t_map *map, t_player *player)
 	return (1);
 }
 
-#include <math.h>
-#include <stdlib.h>
-
-
 t_int_vector	get_map_dimesnions(char **map)
 {
 	t_int_vector	map_dimensions;
@@ -134,7 +130,7 @@ int	main(void)
 	t_map		map;
 	char		*map_file;
 	t_player	player;
-	
+
 	map_file = "./maps/map1.txt";
 	map.raw_map = init_raw_map(map_file);
 	map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
