@@ -33,30 +33,31 @@ void print_map(char **map)
 
 void test_get_scale_factor(void) {
     t_map map;
-    char **mini_map;
 
-    mini_map = (char **)malloc(sizeof(char *) * 4);
+	map.raw_map = (char **)malloc(sizeof(char *) * 4);
 
-   mini_map[0] = (char *)malloc(sizeof(char) * 5);
-   mini_map[0][0] = '1';
-   mini_map[0][1] = '1';
-   mini_map[0][2] = '1';
-   mini_map[0][3] = '1';
-   mini_map[0][4] = '\0';
-   mini_map[1] = (char *)malloc(sizeof(char) * 5);
-   mini_map[1][0] = '1';
-   mini_map[1][1] = '0';
-   mini_map[1][2] = '0';
-   mini_map[1][3] = '1';
-   mini_map[1][4] = '\0';
-   mini_map[2] = (char *)malloc(sizeof(char) * 5);
-   mini_map[2][0] = '1';
-   mini_map[2][1] = '0';
-   mini_map[2][2] = '0';
-   mini_map[2][3] = '1';
-   mini_map[2][4] = '\0';
-   mini_map[3] = NULL;
-    TEST_ASSERT_EQUAL_INT(get_scaling_factor(8, 8, &map), 2);
+   map.raw_map[0] = (char *)malloc(sizeof(char) * 5);
+   map.raw_map[0][0] = '1';
+   map.raw_map[0][1] = '1';
+   map.raw_map[0][2] = '1';
+   map.raw_map[0][3] = '1';
+   map.raw_map[0][4] = '\0';
+   map.raw_map[1] = (char *)malloc(sizeof(char) * 5);
+   map.raw_map[1][0] = '1';
+   map.raw_map[1][1] = '0';
+   map.raw_map[1][2] = '0';
+   map.raw_map[1][3] = '1';
+   map.raw_map[1][4] = '\0';
+   map.raw_map[2] = (char *)malloc(sizeof(char) * 5);
+   map.raw_map[2][0] = '1';
+   map.raw_map[2][1] = '0';
+   map.raw_map[2][2] = '0';
+   map.raw_map[2][3] = '1';
+   map.raw_map[2][4] = '\0';
+   map.raw_map[3] = NULL;
+
+   map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
+    TEST_ASSERT_EQUAL_INT(2, get_scaling_factor(8, 8, &map));
 }
 
 void test_scale_map(void) {
@@ -85,10 +86,9 @@ void test_scale_map(void) {
     map.raw_map[2][4] = '\0';
     map.raw_map[3] = NULL;
 
-    scaling_factor = get_scaling_factor(8, 8, &map);
+    map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
+	scaling_factor = get_scaling_factor(8, 8, &map);
     scaled_map = scale_map(map.raw_map, scaling_factor);
-    print_map(map.raw_map);
-	print_map(scaled_map);
 	TEST_ASSERT_EQUAL_INT(scaling_factor, 2);
     TEST_ASSERT_EQUAL_STRING(scaled_map[0], "11111111");
     TEST_ASSERT_EQUAL_STRING(scaled_map[1], "11111111");
@@ -99,10 +99,42 @@ void test_scale_map(void) {
     TEST_ASSERT_EQUAL_STRING(scaled_map[6], NULL);
 }
 
+void test_add_radians(void)
+{
+// Player pos: 4.400000, 1.900001
+// Ray0 pos: (3.048681, 4.000000) angle: 2.142578
+// Ray1 pos: (2.996259, 4.000000) angle: 2.160031
+// Ray2 pos: (2.942599, 4.000000) angle: 2.177485 1
+// Ray5 pos: (2.773382, 4.000000) angle: 2.229844 2
+// Ray6 pos: (2.713930, 4.000000) angle: 2.247297
+// Ray7 pos: (2.652789, 4.000000) angle: 2.264750
+// Ray8 pos: (2.589845, 4.000000) angle: 2.282204
+// Ray9 pos: (2.524979, 4.000000) angle: 2.299657
+
+	float radians = 2.177485;
+	float increment = DEG_TO_RAD * RESOLUTION;
+	float expected;
+	// float radians_to_add = 0.0;
+
+	for (int i = 0; i < 10; i++)
+	{
+		expected = radians + increment;
+		// if (i == 2)
+		// 	expected = 0;
+		radians = add_radians(radians, DEG_TO_RAD * RESOLUTION);
+		printf("radians: %f\n", radians);
+		// radians = add_radians(radians, increment);
+		TEST_ASSERT_EQUAL_FLOAT(expected, radians);
+	}
+
+
+}
+
 // not needed when using generate_test_runner.rb
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_get_scale_factor);
     RUN_TEST(test_scale_map);
+	RUN_TEST(test_add_radians);
     return UNITY_END();
 }

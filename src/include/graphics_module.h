@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/01 19:54:19 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/03 22:28:38 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 # include <stdint.h>
 # include "MLX42.h"
 # define PI 3.14159265358979323846
+#define DEG_TO_RAD 0.01745329251994329576923690768489
+#define FOV 60
+#define RESOLUTION 1
 
 typedef struct s_int_vector
 {
@@ -54,5 +57,7 @@ typedef struct s_vars
 int32_t	init_window(t_map *map, t_player *player);
 char	**scale_map(char **map, int scaling_factor);
 int		get_scaling_factor(int width, int height, t_map *map);
+float	add_radians(float radians, float radians_to_add);
+t_int_vector	get_map_dimesnions(char **map);
 
 #endif

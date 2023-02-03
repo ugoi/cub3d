@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/02 17:31:43 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/03 21:09:15 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,27 +102,6 @@ int init_player(t_map *map, t_player *player)
 		i++;
 	}
 	return (1);
-}
-
-t_int_vector	get_map_dimesnions(char **map)
-{
-	t_int_vector	map_dimensions;
-	int				max_x;
-
-	map_dimensions.x = 0;
-	map_dimensions.y = 0;
-	while (map[map_dimensions.y])
-	{
-		max_x = 0;
-		while (map[map_dimensions.y][max_x])
-		{
-			max_x++;
-		}
-		if (max_x > map_dimensions.x)
-			map_dimensions.x = max_x;
-		map_dimensions.y++;
-	}
-	return (map_dimensions);
 }
 
 int	main(void)

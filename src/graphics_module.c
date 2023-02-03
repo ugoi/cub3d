@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/03 01:25:52 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/03 22:25:39 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,27 @@ static void	error(void)
 {
 	puts(mlx_strerror(mlx_errno));
 	exit(EXIT_FAILURE);
+}
+
+t_int_vector	get_map_dimesnions(char **map)
+{
+	t_int_vector	map_dimensions;
+	int				max_x;
+
+	map_dimensions.x = 0;
+	map_dimensions.y = 0;
+	while (map[map_dimensions.y])
+	{
+		max_x = 0;
+		while (map[map_dimensions.y][max_x])
+		{
+			max_x++;
+		}
+		if (max_x > map_dimensions.x)
+			map_dimensions.x = max_x;
+		map_dimensions.y++;
+	}
+	return (map_dimensions);
 }
 
 int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color)
@@ -80,6 +101,15 @@ int get_scaling_factor(int width, int height, t_map *map)
 	return (scaling_factor);
 }
 
+t_int_vector get_scaled_player_pos(t_float_vector pos, int scaling_factor)
+{
+	t_int_vector scaled_player_pos;
+
+	scaled_player_pos.x = pos.x * scaling_factor;
+	scaled_player_pos.y = pos.y * scaling_factor;
+	return (scaled_player_pos);
+}
+
 int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 {
 	int				scaling_factor;
@@ -89,8 +119,7 @@ int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 	t_int_vector	scaled_player_pos;
 
 	scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
-	scaled_player_pos.x = player->pos.x * scaling_factor;
-	scaled_player_pos.y = player->pos.y * scaling_factor;
+	scaled_player_pos = get_scaled_player_pos(player->pos, scaling_factor);
 	player_size = scaling_factor / 4;
 	top_left_x = player->pos.x * scaling_factor;
 	while (top_left_x < player->pos.x * scaling_factor + player_size)
@@ -215,146 +244,10 @@ void normalize_vector(t_float_vector *vector)
 	vector->y /= length;
 }
 
-void raycast3D(t_vars *vars)
+void set_vector(t_float_vector *vector, t_float_vector new_vector)
 {
-	int i;
-	float ray_angle;
-	float ray_pos_x;
-	float ray_pos_y;
-	int scaling_factor;
-	float offset_x;
-	float offset_y;
-	int		dof;
-	t_int_vector ray_pos_in_map;
-
-	float vertical_distance;
-	float horizontal_distance;
-	float vertical_ray_pos_x;
-	float vertical_ray_pos_y;
-	
-
-	scaling_factor = get_scaling_factor(vars->map_img->width, vars->main_img->height, vars->map);
-	horizontal_distance = 0;
-	vertical_distance = 0;
-
-	ray_angle = vars->player->radians;
-	i = 0;
-	while (i < 1)
-	{
-		//Check horizontal lines
-		dof = 0;
-		if (ray_angle < M_PI)
-		{
-			ray_pos_y = ceilf(vars->player->pos.y);
-			ray_pos_x = vars->player->pos.x + (ray_pos_y - vars->player->pos.y) / tanf(ray_angle);
-			offset_y = 1;
-			offset_x = offset_y / tanf(ray_angle);
-			// offset_x = atanf(ray_angle);
-		}
-		else
-		{
-			ray_pos_y = floorf(vars->player->pos.y);
-			ray_pos_x = vars->player->pos.x + (ray_pos_y - vars->player->pos.y) / tanf(ray_angle);
-			offset_y = -1;
-			offset_x = offset_y / tanf(ray_angle);
-		}
-		if (ray_angle == 0 || ray_angle == M_PI)
-		{
-			ray_pos_x = vars->player->pos.x;
-			ray_pos_y = vars->player->pos.y;
-			offset_x = 0;
-			offset_y = 0;
-		}
-
-		while (dof < 8)
-		{
-			if (offset_y < 0)
-				ray_pos_in_map.y = (int)ray_pos_y - 1;
-			else
-				ray_pos_in_map.y = (int)ray_pos_y;
-			ray_pos_in_map.x = (int)ray_pos_x;
-			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.x >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.y >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
-			{
-				printf("Horizontal intersection at (%f, %f)\n", ray_pos_x, ray_pos_y);
-				horizontal_distance = hypotf(vars->player->pos.x - ray_pos_x, vars->player->pos.y - ray_pos_y);
-				// printf("Horizontal distance: %f\n", horizontal_distance);
-				break;
-			}
-			else
-			{
-				ray_pos_x += offset_x;
-				ray_pos_y += offset_y;
-			}
-			dof++;
-		}
-
-		// if (ray_pos_x < vars->map->raw_map_dimensions.x && ray_pos_y < vars->map->raw_map_dimensions.y && ray_pos_x >= 0 && ray_pos_y >= 0)
-		// 	draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos_x * scaling_factor, ray_pos_y * scaling_factor}, get_rgba(GREEN));
-
-		
-		//Check vertical lines
-		dof = 0;
-		if (ray_angle < M_PI / 2 || ray_angle > 3 * M_PI / 2)
-		{
-			vertical_ray_pos_x = ceilf(vars->player->pos.x);
-			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
-			offset_x = 1;
-			offset_y = offset_x * tanf(ray_angle);
-		}
-		else
-		{
-			vertical_ray_pos_x = floorf(vars->player->pos.x);
-			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
-			offset_x = -1;
-			offset_y = offset_x * tanf(ray_angle);
-		}
-		if (ray_angle == M_PI / 2 || ray_angle == 3 * M_PI / 2)
-		{
-			vertical_ray_pos_x = vars->player->pos.x;
-			vertical_ray_pos_y = vars->player->pos.y;
-			offset_x = 0;
-			offset_y = 0;
-		}
-
-		while (dof < 8)
-		{
-			if (offset_x < 0)
-				ray_pos_in_map.x = (int)vertical_ray_pos_x - 1;
-			else
-				ray_pos_in_map.x = (int)vertical_ray_pos_x;
-			ray_pos_in_map.y = (int)vertical_ray_pos_y;
-			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.y >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.x >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
-			{
-				printf("Vertical intersection at (%f, %f)\n", vertical_ray_pos_x, vertical_ray_pos_y);
-				vertical_distance = hypotf(vars->player->pos.x - vertical_ray_pos_x, vars->player->pos.y - vertical_ray_pos_y);
-				break;
-			}
-			else
-			{
-				vertical_ray_pos_x += offset_x;
-				vertical_ray_pos_y += offset_y;
-			}
-			dof++;
-		}
-		
-		printf("Horizontal distance: %f\n", horizontal_distance);
-		printf("Vertical distance: %f\n", vertical_distance);
-		if ((horizontal_distance < vertical_distance || vertical_distance == 0) && horizontal_distance != 0)
-		{
-			// ray_pos_x = ray_pos_x;
-			// ray_pos_y = ray_pos_y;
-		}
-		else
-		{
-			ray_pos_x = vertical_ray_pos_x;
-			ray_pos_y = vertical_ray_pos_y;
-		}
-		if (ray_pos_x < vars->map->raw_map_dimensions.x && ray_pos_y < vars->map->raw_map_dimensions.y && ray_pos_x >= 0 && ray_pos_y >= 0)
-			draw_vector(vars->map_img, (t_int_vector){vars->player->pos.x * scaling_factor, vars->player->pos.y * scaling_factor}, (t_int_vector){ray_pos_x * scaling_factor, ray_pos_y * scaling_factor}, get_rgba(BLUE));
-		
-		i++;
-	}
-
+	vector->x = new_vector.x;
+	vector->y = new_vector.y;
 }
 
 float	add_radians(float radians, float radians_to_add)
@@ -366,6 +259,149 @@ float	add_radians(float radians, float radians_to_add)
 		radians += 2 * M_PI;
 	return (radians);
 }
+
+void raycast3D(t_vars *vars)
+{
+	int i;
+	float ray_angle;
+	t_float_vector ray_pos;
+	int scaling_factor;
+	t_int_vector scaled_player_pos;
+	t_float_vector offset;
+	int		dof;
+	t_int_vector ray_pos_in_map;
+
+	float vertical_distance;
+	float horizontal_distance;
+	float vertical_ray_pos_x;
+	float vertical_ray_pos_y;
+
+
+	scaling_factor = get_scaling_factor(vars->map_img->width, vars->main_img->height, vars->map);
+	scaled_player_pos = get_scaled_player_pos(vars->player->pos, scaling_factor);
+
+	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+	i = 0;
+	printf("\nPlayer pos: %f, %f\n", vars->player->pos.x, vars->player->pos.y);
+	while (i < FOV / RESOLUTION)
+	{
+		horizontal_distance = 0;
+		vertical_distance = 0;
+		ray_angle = add_radians(ray_angle, DEG_TO_RAD * RESOLUTION);
+
+		//Check horizontal lines
+		dof = 0;
+		if (ray_angle < M_PI)
+		{
+			ray_pos.y = ceilf(vars->player->pos.y);
+			ray_pos.x = vars->player->pos.x + (ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
+			offset.y = 1;
+			offset.x = offset.y / tanf(ray_angle);
+		}
+		else
+		{
+			ray_pos.y = floorf(vars->player->pos.y);
+			ray_pos.x = vars->player->pos.x + (ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
+			offset.y = -1;
+			offset.x = offset.y / tanf(ray_angle);
+		}
+		if (ray_angle == 0 || ray_angle == M_PI)
+		{
+			// ray_pos.x = vars->player->pos.x;
+			// ray_pos.y = vars->player->pos.y;
+			set_vector(&ray_pos, vars->player->pos);
+			offset.x = 0;
+			offset.y = 0;
+		}
+
+		while (dof < 8)
+		{
+			if (offset.y < 0)
+				ray_pos_in_map.y = (int)ray_pos.y - 1;
+			else
+				ray_pos_in_map.y = (int)ray_pos.y;
+			ray_pos_in_map.x = (int)ray_pos.x;
+			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.x >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.y >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
+			{
+				// printf("Horizontal intersection at (%f, %f)\n", ray_pos.x, ray_pos.y);
+				horizontal_distance = hypotf(vars->player->pos.x - ray_pos.x, vars->player->pos.y - ray_pos.y);
+				break;
+			}
+			else
+			{
+				ray_pos.x += offset.x;
+				ray_pos.y += offset.y;
+			}
+			dof++;
+		}
+
+		//Check vertical lines
+		dof = 0;
+		if (ray_angle < M_PI / 2 || ray_angle > 3 * M_PI / 2)
+		{
+			vertical_ray_pos_x = ceilf(vars->player->pos.x);
+			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
+			offset.x = 1;
+			offset.y = offset.x * tanf(ray_angle);
+		}
+		else
+		{
+			vertical_ray_pos_x = floorf(vars->player->pos.x);
+			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
+			offset.x = -1;
+			offset.y = offset.x * tanf(ray_angle);
+		}
+		if (ray_angle == M_PI / 2 || ray_angle == 3 * M_PI / 2)
+		{
+			vertical_ray_pos_x = vars->player->pos.x;
+			vertical_ray_pos_y = vars->player->pos.y;
+			offset.x = 0;
+			offset.y = 0;
+		}
+
+		while (dof < 8)
+		{
+			if (offset.x < 0)
+				ray_pos_in_map.x = (int)vertical_ray_pos_x - 1;
+			else
+				ray_pos_in_map.x = (int)vertical_ray_pos_x;
+			ray_pos_in_map.y = (int)vertical_ray_pos_y;
+			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.y >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.x >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
+			{
+				// printf("Vertical intersection at (%f, %f)\n", vertical_ray_pos_x, vertical_ray_pos_y);
+				vertical_distance = hypotf(vars->player->pos.x - vertical_ray_pos_x, vars->player->pos.y - vertical_ray_pos_y);
+				break;
+			}
+			else
+			{
+				vertical_ray_pos_x += offset.x;
+				vertical_ray_pos_y += offset.y;
+			}
+			dof++;
+		}
+
+		// printf("Horizonstal ray pos: %f,%f  Vertical ray pos: %f, %f\n", ray_pos.x, ray_pos.y, vertical_ray_pos_x, vertical_ray_pos_y);
+		if ((horizontal_distance <= vertical_distance || vertical_distance <= 0) && horizontal_distance > 0)
+		{
+			// ray_pos.x = ray_pos.x;
+			// ray_pos.y = ray_pos.y;
+		}
+		else
+		{
+			ray_pos.x = vertical_ray_pos_x;
+			ray_pos.y = vertical_ray_pos_y;
+		}
+		// printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
+		if (ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y < vars->map->raw_map_dimensions.y && ray_pos.x >= 0 && ray_pos.y >= 0)
+			{
+			printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
+			draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(ray_pos, scaling_factor), get_rgba(BLUE));
+			}
+
+		i++;
+	}
+}
+
 
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
