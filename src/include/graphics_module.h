@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/03 22:28:38 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/04 00:06:02 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include "MLX42.h"
 # define PI 3.14159265358979323846
 #define DEG_TO_RAD 0.01745329251994329576923690768489
-#define FOV 60
-#define RESOLUTION 1
+#define FOV 60.0
+#define RESOLUTION 0.1
 
 typedef struct s_int_vector
 {

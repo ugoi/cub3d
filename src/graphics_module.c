@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/03 22:25:39 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/04 00:05:44 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,51 @@ int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int colo
 	return (0);
 }
 
+int draw_vector2(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width)
+{
+    int		x;
+    int		y;
+    int		dx;
+    int		dy;
+    int		sx;
+    int		sy;
+    int		err;
+    int		e2;
+    int     half_width;
+
+    half_width = width / 2;
+
+    x = start.x;
+    y = start.y;
+    dx = abs(end.x - start.x);
+    dy = abs(end.y - start.y);
+    sx = start.x < end.x ? 1 : -1;
+    sy = start.y < end.y ? 1 : -1;
+    err = (dx > dy ? dx : -dy) / 2;
+    while (1)
+    {
+        for (int i = -half_width; i <= half_width; i++)
+            mlx_put_pixel(img, x + i, y, color);
+        if (x == end.x && y == end.y)
+            break ;
+        e2 = err;
+        if (e2 > -dx)
+        {
+            err -= dy;
+            x += sx;
+        }
+        if (e2 < dy)
+        {
+            err += dx;
+            y += sy;
+        }
+    }
+    return (0);
+}
+
+
+
+
 int get_scaling_factor(int width, int height, t_map *map)
 {
 	t_int_vector map_dimensions = map->raw_map_dimensions;
@@ -132,7 +177,7 @@ int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 		}
 		top_left_x++;
 	}
-	draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED));
+	draw_vector2(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED), 2);
 	return (0);
 }
 
@@ -260,6 +305,34 @@ float	add_radians(float radians, float radians_to_add)
 	return (radians);
 }
 
+void draw_line(mlx_image_t *img, t_int_vector start, t_int_vector end, uint32_t color)
+{
+	int32_t dx = abs(end.x - start.x);
+	int32_t sx = start.x < end.x ? 1 : -1;
+	int32_t dy = -abs(end.y - start.y);
+	int32_t sy = start.y < end.y ? 1 : -1;
+	int32_t err = dx + dy;
+	int32_t e2;
+
+	while (1)
+	{
+		mlx_put_pixel(img, start.x, start.y, color);
+		if (start.x == end.x && start.y == end.y)
+			break;
+		e2 = 2 * err;
+		if (e2 >= dy)
+		{
+			err += dy;
+			start.x += sx;
+		}
+		if (e2 <= dx)
+		{
+			err += dx;
+			start.y += sy;
+		}
+	}
+}
+
 void raycast3D(t_vars *vars)
 {
 	int i;
@@ -275,6 +348,7 @@ void raycast3D(t_vars *vars)
 	float horizontal_distance;
 	float vertical_ray_pos_x;
 	float vertical_ray_pos_y;
+	float shortest_distance;
 
 
 	scaling_factor = get_scaling_factor(vars->map_img->width, vars->main_img->height, vars->map);
@@ -283,10 +357,12 @@ void raycast3D(t_vars *vars)
 	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
 	i = 0;
 	printf("\nPlayer pos: %f, %f\n", vars->player->pos.x, vars->player->pos.y);
+	draw_main(vars->main_img);
 	while (i < FOV / RESOLUTION)
 	{
 		horizontal_distance = 0;
 		vertical_distance = 0;
+		shortest_distance = 0;
 		ray_angle = add_radians(ray_angle, DEG_TO_RAD * RESOLUTION);
 
 		//Check horizontal lines
@@ -385,18 +461,36 @@ void raycast3D(t_vars *vars)
 		{
 			// ray_pos.x = ray_pos.x;
 			// ray_pos.y = ray_pos.y;
+			shortest_distance = horizontal_distance;
 		}
 		else
 		{
 			ray_pos.x = vertical_ray_pos_x;
 			ray_pos.y = vertical_ray_pos_y;
+			shortest_distance = vertical_distance;
 		}
 		// printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
-		if (ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y < vars->map->raw_map_dimensions.y && ray_pos.x >= 0 && ray_pos.y >= 0)
-			{
-			printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
-			draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(ray_pos, scaling_factor), get_rgba(BLUE));
-			}
+		// if (ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y < vars->map->raw_map_dimensions.y && ray_pos.x >= 0 && ray_pos.y >= 0)
+		// 	{
+		// 	printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
+
+
+		// 	}
+		draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(ray_pos, scaling_factor), get_rgba(BLUE));
+
+		//Draw 3D walls
+		float ca=add_radians(vars->player->radians, -ray_angle); shortest_distance=shortest_distance*cos(ca);                            //fix fisheye
+		float line_height = 100 / shortest_distance;
+		float block_width = vars->main_img->width / (FOV / RESOLUTION);
+		int line_start = vars->main_img->height / 2 - line_height / 2;
+		int line_end = vars->main_img->height / 2 + line_height / 2;
+		if (line_start < 0)
+			line_start = 0;
+		if (line_end > (int)vars->main_img->height)
+			line_end = (int)vars->main_img->height;
+		draw_line(vars->main_img, (t_int_vector){i * (block_width), line_start}, (t_int_vector){i * (block_width), line_end}, get_rgba(WHITE));
+		// draw_vector2(vars->main_img, (t_int_vector){i * block_width + block_width / 2, line_start}, (t_int_vector){i * block_width + block_width / 2, line_end}, get_rgba(WHITE), block_width);
+
 
 		i++;
 	}
