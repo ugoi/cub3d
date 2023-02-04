@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/04 00:05:44 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/04 18:25:05 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -333,6 +333,24 @@ void draw_line(mlx_image_t *img, t_int_vector start, t_int_vector end, uint32_t 
 	}
 }
 
+void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t color)
+{
+	int i;
+	int j;
+
+	i = start;
+	while (i < end)
+	{
+		j = 0;
+		while (j < w)
+		{
+			mlx_put_pixel(img, n * w + j, i, color);
+			j++;
+		}
+		i++;
+	}
+}
+
 void raycast3D(t_vars *vars)
 {
 	int i;
@@ -356,7 +374,7 @@ void raycast3D(t_vars *vars)
 
 	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
 	i = 0;
-	printf("\nPlayer pos: %f, %f\n", vars->player->pos.x, vars->player->pos.y);
+	// printf("\nPlayer pos: %f, %f\n", vars->player->pos.x, vars->player->pos.y);
 	draw_main(vars->main_img);
 	while (i < FOV / RESOLUTION)
 	{
@@ -481,15 +499,19 @@ void raycast3D(t_vars *vars)
 		//Draw 3D walls
 		float ca=add_radians(vars->player->radians, -ray_angle); shortest_distance=shortest_distance*cos(ca);                            //fix fisheye
 		float line_height = 100 / shortest_distance;
-		float block_width = vars->main_img->width / (FOV / RESOLUTION);
+		float wall_width = vars->main_img->width / (FOV / RESOLUTION);
 		int line_start = vars->main_img->height / 2 - line_height / 2;
 		int line_end = vars->main_img->height / 2 + line_height / 2;
 		if (line_start < 0)
 			line_start = 0;
 		if (line_end > (int)vars->main_img->height)
 			line_end = (int)vars->main_img->height;
-		draw_line(vars->main_img, (t_int_vector){i * (block_width), line_start}, (t_int_vector){i * (block_width), line_end}, get_rgba(WHITE));
-		// draw_vector2(vars->main_img, (t_int_vector){i * block_width + block_width / 2, line_start}, (t_int_vector){i * block_width + block_width / 2, line_end}, get_rgba(WHITE), block_width);
+		(void)wall_width;
+		// draw_line(vars->main_img, (t_int_vector){i * (wall_width), line_start}, (t_int_vector){i * (wall_width), line_end}, get_rgba(WHITE));
+		// draw_vector2(vars->main_img, (t_int_vector){i * wall_width, line_start}, (t_int_vector){i * wall_width, line_end}, get_rgba(WHITE), wall_width);
+		// draw_columns(vars->main_img, i, wall_width, 200, 400, get_rgba(WHITE));
+		printf("wall width: %f, total walls: %f, screen_width %d\n", wall_width, (FOV / RESOLUTION), vars->main_img->width);
+		draw_columns(vars->main_img, i, wall_width, line_start, line_end, get_rgba(WHITE));
 
 
 		i++;
