@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/04 18:25:05 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/04 22:19:04 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,8 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "MLX42.h"
-#define WIDTH 800
-#define HEIGHT 600
 #include <math.h>
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) < (b) ? (a) : (b))
+#include "./include/my_math.h"
 
 static void	error(void)
 {
@@ -30,66 +27,7 @@ static void	error(void)
 	exit(EXIT_FAILURE);
 }
 
-t_int_vector	get_map_dimesnions(char **map)
-{
-	t_int_vector	map_dimensions;
-	int				max_x;
-
-	map_dimensions.x = 0;
-	map_dimensions.y = 0;
-	while (map[map_dimensions.y])
-	{
-		max_x = 0;
-		while (map[map_dimensions.y][max_x])
-		{
-			max_x++;
-		}
-		if (max_x > map_dimensions.x)
-			map_dimensions.x = max_x;
-		map_dimensions.y++;
-	}
-	return (map_dimensions);
-}
-
-int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color)
-{
-	int		x;
-	int		y;
-	int		dx;
-	int		dy;
-	int		sx;
-	int		sy;
-	int		err;
-	int		e2;
-
-	x = start.x;
-	y = start.y;
-	dx = abs(end.x - start.x);
-	dy = abs(end.y - start.y);
-	sx = start.x < end.x ? 1 : -1;
-	sy = start.y < end.y ? 1 : -1;
-	err = (dx > dy ? dx : -dy) / 2;
-	while (1)
-	{
-		mlx_put_pixel(img, x, y, color);
-		if (x == end.x && y == end.y)
-			break ;
-		e2 = err;
-		if (e2 > -dx)
-		{
-			err -= dy;
-			x += sx;
-		}
-		if (e2 < dy)
-		{
-			err += dx;
-			y += sy;
-		}
-	}
-	return (0);
-}
-
-int draw_vector2(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width)
+int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width)
 {
     int		x;
     int		y;
@@ -132,20 +70,6 @@ int draw_vector2(mlx_image_t *img, t_int_vector start, t_int_vector end, int col
 }
 
 
-
-
-int get_scaling_factor(int width, int height, t_map *map)
-{
-	t_int_vector map_dimensions = map->raw_map_dimensions;
-	t_int_vector scaling_factors;
-	int scaling_factor;
-
-	scaling_factors.x = width / map_dimensions.x;
-	scaling_factors.y = height / map_dimensions.y;
-	scaling_factor = min(scaling_factors.x, scaling_factors.y);
-	return (scaling_factor);
-}
-
 t_int_vector get_scaled_player_pos(t_float_vector pos, int scaling_factor)
 {
 	t_int_vector scaled_player_pos;
@@ -157,14 +81,14 @@ t_int_vector get_scaled_player_pos(t_float_vector pos, int scaling_factor)
 
 int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 {
-	int				scaling_factor;
+	float				scaling_factor;
 	int				player_size;
 	int				top_left_x;
 	int				top_left_y;
-	t_int_vector	scaled_player_pos;
+	// t_int_vector	scaled_player_pos;
 
-	scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
-	scaled_player_pos = get_scaled_player_pos(player->pos, scaling_factor);
+	scaling_factor = map->minimap_scaling_factor;
+	// scaled_player_pos = get_scaled_player_pos(player->pos, scaling_factor);
 	player_size = scaling_factor / 4;
 	top_left_x = player->pos.x * scaling_factor;
 	while (top_left_x < player->pos.x * scaling_factor + player_size)
@@ -177,55 +101,13 @@ int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
 		}
 		top_left_x++;
 	}
-	draw_vector2(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED), 2);
+	// draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED), 2);
 	return (0);
-}
-
-char **scale_map(char **map, int scaling_factor)
-{
-	int i, j, k, l;
-	int rows = 0;
-	int cols = 0;
-
-	// Find the number of rows and columns in the map
-	for (i = 0; map[i] != NULL; i++) {
-		rows++;
-		cols = max(cols, (int)strlen(map[i]));
-	}
-
-	// Allocate memory for the scaled map
-	char **scaled_map = (char **)malloc(sizeof(char *) * (rows * scaling_factor + 1));
-	for (i = 0; i < rows * scaling_factor; i++) {
-		scaled_map[i] = (char *)malloc(sizeof(char) * (cols * scaling_factor + 1));
-	}
-	scaled_map[rows * scaling_factor] = NULL;
-
-	// Initialize the scaled map
-	for (i = 0; i < rows * scaling_factor; i++) {
-		for (j = 0; j < cols * scaling_factor; j++) {
-			scaled_map[i][j] = '0';
-		}
-		scaled_map[i][cols * scaling_factor] = '\0';
-	}
-
-	// Copy the values from the original map to the scaled map
-	for (i = 0; i < rows; i++) {
-		for (j = 0; j < (int)strlen(map[i]); j++) {
-			for (k = i * scaling_factor; k < (i + 1) * scaling_factor; k++) {
-				for (l = j * scaling_factor; l < (j + 1) * scaling_factor; l++) {
-					scaled_map[k][l] = map[i][j];
-				}
-			}
-		}
-	}
-
-	return scaled_map;
 }
 
 int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 {
-	int scaling_factor = get_scaling_factor(map_img->width, map_img->height, map);
-	char **scaled_map = scale_map(map->raw_map, scaling_factor);
+	char **scaled_map = map->mini_map;
 	(void)(player);
 
 	uint32_t x = 0;
@@ -258,41 +140,16 @@ int	draw_main(mlx_image_t *main_img)
 	{
 		while (x < main_img->width)
 		{
-			mlx_put_pixel(main_img, x, y, get_rgba(RED));
+			if (y < main_img->height / 2)
+				mlx_put_pixel(main_img, x, y, get_rgba(BLUE));
+			else
+				mlx_put_pixel(main_img, x, y, get_rgba(GRAY));
 			x++;
 		}
 		x = 0;
 		y++;
 	}
 	return (0);
-}
-
-void	resize_func(int32_t width, int32_t height, void* data)
-{
-	t_vars* vars;
-
-	vars = (t_vars*)data;
-	mlx_delete_image(vars->mlx, vars->main_img);
-	vars->main_img = mlx_new_image(vars->mlx, width, height);
-	draw_main(vars->main_img);
-	mlx_image_to_window(vars->mlx, vars->main_img, 0, 0);
-	mlx_delete_image(vars->mlx, vars->map_img);
-	vars->map_img = mlx_new_image(vars->mlx, width / 4, width / 4);
-	draw_map(vars->map_img, vars->map, vars->player);
-	mlx_image_to_window(vars->mlx, vars->map_img, 0, 0);
-}
-
-void normalize_vector(t_float_vector *vector)
-{
-	float length = sqrtf(vector->x * vector->x + vector->y * vector->y);
-	vector->x /= length;
-	vector->y /= length;
-}
-
-void set_vector(t_float_vector *vector, t_float_vector new_vector)
-{
-	vector->x = new_vector.x;
-	vector->y = new_vector.y;
 }
 
 float	add_radians(float radians, float radians_to_add)
@@ -303,34 +160,6 @@ float	add_radians(float radians, float radians_to_add)
 	else if (radians < 0)
 		radians += 2 * M_PI;
 	return (radians);
-}
-
-void draw_line(mlx_image_t *img, t_int_vector start, t_int_vector end, uint32_t color)
-{
-	int32_t dx = abs(end.x - start.x);
-	int32_t sx = start.x < end.x ? 1 : -1;
-	int32_t dy = -abs(end.y - start.y);
-	int32_t sy = start.y < end.y ? 1 : -1;
-	int32_t err = dx + dy;
-	int32_t e2;
-
-	while (1)
-	{
-		mlx_put_pixel(img, start.x, start.y, color);
-		if (start.x == end.x && start.y == end.y)
-			break;
-		e2 = 2 * err;
-		if (e2 >= dy)
-		{
-			err += dy;
-			start.x += sx;
-		}
-		if (e2 <= dx)
-		{
-			err += dx;
-			start.y += sy;
-		}
-	}
 }
 
 void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t color)
@@ -353,28 +182,28 @@ void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t
 
 void raycast3D(t_vars *vars)
 {
-	int i;
-	float ray_angle;
-	t_float_vector ray_pos;
-	int scaling_factor;
-	t_int_vector scaled_player_pos;
-	t_float_vector offset;
-	int		dof;
-	t_int_vector ray_pos_in_map;
+	int				i;
+	float			ray_angle;
+	float				scaling_factor;
+	int				dof;
+	t_int_vector	scaled_player_pos;
+	t_float_vector	offset;
+	t_int_vector	ray_pos_in_map;
 
-	float vertical_distance;
-	float horizontal_distance;
-	float vertical_ray_pos_x;
-	float vertical_ray_pos_y;
-	float shortest_distance;
+	t_float_vector	horizontal_ray_pos;
+	float			horizontal_distance;
+	
+	t_float_vector	vertical_ray_pos;
+	float			vertical_distance;
+	
+	t_float_vector	shortest_ray_pos;
+	float			shortest_distance;
 
-
-	scaling_factor = get_scaling_factor(vars->map_img->width, vars->main_img->height, vars->map);
+	scaling_factor = vars->map->minimap_scaling_factor;
 	scaled_player_pos = get_scaled_player_pos(vars->player->pos, scaling_factor);
 
 	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
 	i = 0;
-	// printf("\nPlayer pos: %f, %f\n", vars->player->pos.x, vars->player->pos.y);
 	draw_main(vars->main_img);
 	while (i < FOV / RESOLUTION)
 	{
@@ -387,23 +216,21 @@ void raycast3D(t_vars *vars)
 		dof = 0;
 		if (ray_angle < M_PI)
 		{
-			ray_pos.y = ceilf(vars->player->pos.y);
-			ray_pos.x = vars->player->pos.x + (ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
+			horizontal_ray_pos.y = ceilf(vars->player->pos.y);
+			horizontal_ray_pos.x = vars->player->pos.x + (horizontal_ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
 			offset.y = 1;
 			offset.x = offset.y / tanf(ray_angle);
 		}
 		else
 		{
-			ray_pos.y = floorf(vars->player->pos.y);
-			ray_pos.x = vars->player->pos.x + (ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
+			horizontal_ray_pos.y = floorf(vars->player->pos.y);
+			horizontal_ray_pos.x = vars->player->pos.x + (horizontal_ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
 			offset.y = -1;
 			offset.x = offset.y / tanf(ray_angle);
 		}
 		if (ray_angle == 0 || ray_angle == M_PI)
 		{
-			// ray_pos.x = vars->player->pos.x;
-			// ray_pos.y = vars->player->pos.y;
-			set_vector(&ray_pos, vars->player->pos);
+			horizontal_ray_pos = vars->player->pos;
 			offset.x = 0;
 			offset.y = 0;
 		}
@@ -411,20 +238,19 @@ void raycast3D(t_vars *vars)
 		while (dof < 8)
 		{
 			if (offset.y < 0)
-				ray_pos_in_map.y = (int)ray_pos.y - 1;
+				ray_pos_in_map.y = (int)horizontal_ray_pos.y - 1;
 			else
-				ray_pos_in_map.y = (int)ray_pos.y;
-			ray_pos_in_map.x = (int)ray_pos.x;
+				ray_pos_in_map.y = (int)horizontal_ray_pos.y;
+			ray_pos_in_map.x = (int)horizontal_ray_pos.x;
 			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.x >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.y >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
 			{
-				// printf("Horizontal intersection at (%f, %f)\n", ray_pos.x, ray_pos.y);
-				horizontal_distance = hypotf(vars->player->pos.x - ray_pos.x, vars->player->pos.y - ray_pos.y);
+				horizontal_distance = hypotf(vars->player->pos.x - horizontal_ray_pos.x, vars->player->pos.y - horizontal_ray_pos.y);
 				break;
 			}
 			else
 			{
-				ray_pos.x += offset.x;
-				ray_pos.y += offset.y;
+				horizontal_ray_pos.x += offset.x;
+				horizontal_ray_pos.y += offset.y;
 			}
 			dof++;
 		}
@@ -433,22 +259,22 @@ void raycast3D(t_vars *vars)
 		dof = 0;
 		if (ray_angle < M_PI / 2 || ray_angle > 3 * M_PI / 2)
 		{
-			vertical_ray_pos_x = ceilf(vars->player->pos.x);
-			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
+			vertical_ray_pos.x = ceilf(vars->player->pos.x);
+			vertical_ray_pos.y = vars->player->pos.y + (vertical_ray_pos.x - vars->player->pos.x) * tanf(ray_angle);
 			offset.x = 1;
 			offset.y = offset.x * tanf(ray_angle);
 		}
 		else
 		{
-			vertical_ray_pos_x = floorf(vars->player->pos.x);
-			vertical_ray_pos_y = vars->player->pos.y + (vertical_ray_pos_x - vars->player->pos.x) * tanf(ray_angle);
+			vertical_ray_pos.x = floorf(vars->player->pos.x);
+			vertical_ray_pos.y = vars->player->pos.y + (vertical_ray_pos.x - vars->player->pos.x) * tanf(ray_angle);
 			offset.x = -1;
 			offset.y = offset.x * tanf(ray_angle);
 		}
 		if (ray_angle == M_PI / 2 || ray_angle == 3 * M_PI / 2)
 		{
-			vertical_ray_pos_x = vars->player->pos.x;
-			vertical_ray_pos_y = vars->player->pos.y;
+			vertical_ray_pos.x = vars->player->pos.x;
+			vertical_ray_pos.y = vars->player->pos.y;
 			offset.x = 0;
 			offset.y = 0;
 		}
@@ -456,45 +282,34 @@ void raycast3D(t_vars *vars)
 		while (dof < 8)
 		{
 			if (offset.x < 0)
-				ray_pos_in_map.x = (int)vertical_ray_pos_x - 1;
+				ray_pos_in_map.x = (int)vertical_ray_pos.x - 1;
 			else
-				ray_pos_in_map.x = (int)vertical_ray_pos_x;
-			ray_pos_in_map.y = (int)vertical_ray_pos_y;
+				ray_pos_in_map.x = (int)vertical_ray_pos.x;
+			ray_pos_in_map.y = (int)vertical_ray_pos.y;
 			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.y >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.x >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
 			{
-				// printf("Vertical intersection at (%f, %f)\n", vertical_ray_pos_x, vertical_ray_pos_y);
-				vertical_distance = hypotf(vars->player->pos.x - vertical_ray_pos_x, vars->player->pos.y - vertical_ray_pos_y);
+				vertical_distance = hypotf(vars->player->pos.x - vertical_ray_pos.x, vars->player->pos.y - vertical_ray_pos.y);
 				break;
 			}
 			else
 			{
-				vertical_ray_pos_x += offset.x;
-				vertical_ray_pos_y += offset.y;
+				vertical_ray_pos.x += offset.x;
+				vertical_ray_pos.y += offset.y;
 			}
 			dof++;
 		}
-
-		// printf("Horizonstal ray pos: %f,%f  Vertical ray pos: %f, %f\n", ray_pos.x, ray_pos.y, vertical_ray_pos_x, vertical_ray_pos_y);
 		if ((horizontal_distance <= vertical_distance || vertical_distance <= 0) && horizontal_distance > 0)
 		{
-			// ray_pos.x = ray_pos.x;
-			// ray_pos.y = ray_pos.y;
 			shortest_distance = horizontal_distance;
+			shortest_ray_pos = horizontal_ray_pos;
 		}
 		else
 		{
-			ray_pos.x = vertical_ray_pos_x;
-			ray_pos.y = vertical_ray_pos_y;
 			shortest_distance = vertical_distance;
+			shortest_ray_pos = vertical_ray_pos;
 		}
-		// printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
-		// if (ray_pos.x < vars->map->raw_map_dimensions.x && ray_pos.y < vars->map->raw_map_dimensions.y && ray_pos.x >= 0 && ray_pos.y >= 0)
-		// 	{
-		// 	printf("Ray%d pos: (%f, %f) angle: %f\n", i, ray_pos.x, ray_pos.y, ray_angle);
-
-
-		// 	}
-		draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(ray_pos, scaling_factor), get_rgba(BLUE));
+		//Draw 2D map
+		draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
 
 		//Draw 3D walls
 		float ca=add_radians(vars->player->radians, -ray_angle); shortest_distance=shortest_distance*cos(ca);                            //fix fisheye
@@ -506,18 +321,10 @@ void raycast3D(t_vars *vars)
 			line_start = 0;
 		if (line_end > (int)vars->main_img->height)
 			line_end = (int)vars->main_img->height;
-		(void)wall_width;
-		// draw_line(vars->main_img, (t_int_vector){i * (wall_width), line_start}, (t_int_vector){i * (wall_width), line_end}, get_rgba(WHITE));
-		// draw_vector2(vars->main_img, (t_int_vector){i * wall_width, line_start}, (t_int_vector){i * wall_width, line_end}, get_rgba(WHITE), wall_width);
-		// draw_columns(vars->main_img, i, wall_width, 200, 400, get_rgba(WHITE));
-		printf("wall width: %f, total walls: %f, screen_width %d\n", wall_width, (FOV / RESOLUTION), vars->main_img->width);
 		draw_columns(vars->main_img, i, wall_width, line_start, line_end, get_rgba(WHITE));
-
-
 		i++;
 	}
 }
-
 
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
@@ -559,7 +366,6 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
 	{
 		vars->player->radians = add_radians(vars->player->radians, -0.1);
-		// printf("Player angle: %f\n", vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
 		raycast3D(vars);
@@ -567,7 +373,6 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
 	{
 		vars->player->radians = add_radians(vars->player->radians, 0.1);
-		// printf("Player angle: %f\n", vars->player->radians);
 		draw_map(vars->map_img, vars->map, vars->player);
 		draw_player(vars->map_img, vars->player, vars->map);
 		raycast3D(vars);
@@ -600,7 +405,6 @@ int32_t	init_window(t_map *map, t_player *player)
 	draw_player(vars.map_img, player, map);
 	if (mlx_image_to_window(vars.mlx, vars.map_img, 0, 0) < 0)
 		error();
-	mlx_resize_hook(vars.mlx, resize_func, &vars);
 	mlx_key_hook(vars.mlx, my_keyhook, &vars);
 	mlx_loop(vars.mlx);
 	mlx_delete_image(vars.mlx, vars.map_img);

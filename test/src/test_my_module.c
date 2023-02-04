@@ -31,7 +31,7 @@ void print_map(char **map)
 	}
 }
 
-void test_get_scale_factor(void) {
+void test_get_fscaling_factor(void) {
     t_map map;
 
 	map.raw_map = (char **)malloc(sizeof(char *) * 4);
@@ -57,7 +57,7 @@ void test_get_scale_factor(void) {
    map.raw_map[3] = NULL;
 
    map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
-    TEST_ASSERT_EQUAL_INT(2, get_scaling_factor(8, 8, &map));
+    TEST_ASSERT_EQUAL_INT(2, get_fscaling_factor(map.raw_map_dimensions, (t_int_vector){10, 10}));
 }
 
 void test_scale_map(void) {
@@ -87,7 +87,9 @@ void test_scale_map(void) {
     map.raw_map[3] = NULL;
 
     map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
-	scaling_factor = get_scaling_factor(8, 8, &map);
+	// scaling_factor = get_fscaling_factor(8, 8, &map);
+    scaling_factor = get_fscaling_factor(map.raw_map_dimensions, (t_int_vector){8, 8});
+
     scaled_map = scale_map(map.raw_map, scaling_factor);
 	TEST_ASSERT_EQUAL_INT(scaling_factor, 2);
     TEST_ASSERT_EQUAL_STRING(scaled_map[0], "11111111");
@@ -133,7 +135,7 @@ void test_add_radians(void)
 // not needed when using generate_test_runner.rb
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_get_scale_factor);
+    RUN_TEST(test_get_fscaling_factor);
     RUN_TEST(test_scale_map);
 	RUN_TEST(test_add_radians);
     return UNITY_END();

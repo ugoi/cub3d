@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/03 21:09:15 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/04 21:53:23 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,57 +22,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <math.h>
+#include "./include/map.h"
 
-char *get_next_line(int fd)
-{
-    char *string = malloc(10000), *copy = string;
-    while (read(fd, copy, 1) > 0 && *copy++ != '\n');
-    return (copy > string) ? (*copy = 0, string) : (free(string), NULL);
-}
-
-char	**init_raw_map(char *map_file)
-{
-	char	**map;
-	int		fd;
-	int		i;
-	int		j;
-	char	*line;
-
-	fd = open(map_file, O_RDONLY);
-	if (fd == -1)
-	{
-		printf("Error opening map file %s\n", map_file);
-		exit(1);
-	}
-	i = 0;
-	while (get_next_line(fd))
-	{
-		i++;
-	}
-	close(fd);
-	fd = open(map_file, O_RDONLY);
-	map = malloc(sizeof(char *) * (i + 1));
-	i = 0;
-	line = get_next_line(fd);
-	while (line)
-	{
-		j = 0;
-		map[i] = malloc(sizeof(char) * 10);
-		while (line[j] && line[j] != '\n')
-		{
-			map[i][j] = line[j];
-			j++;
-		}
-		map[i][j] = 0;
-		i++;
-		line = get_next_line(fd);
-	}
-	map[i] = NULL;
-	close(fd);
-	return (map);
-}
-
-int init_player(t_map *map, t_player *player)
+int player_constructor(t_map *map, t_player *player)
 {
 	int			i;
 	int			j;
@@ -104,15 +56,23 @@ int init_player(t_map *map, t_player *player)
 	return (1);
 }
 
+// void map_constructor(t_map *map)
+// {
+// 	char		*map_file;
+	
+// 	map_file = "./maps/map1.txt";
+// 	map->raw_map = init_raw_map(map_file);
+// 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
+// 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
+// 	map->minimap_scaling_factor = get_fscaling_factor(map->raw_map_dimensions, map->minimap_dimensions);
+// }
+
 int	main(void)
 {
 	t_map		map;
-	char		*map_file;
 	t_player	player;
 
-	map_file = "./maps/map1.txt";
-	map.raw_map = init_raw_map(map_file);
-	map.raw_map_dimensions = get_map_dimesnions(map.raw_map);
-	init_player(&map, &player);
+	map_constructor(&map);
+	player_constructor(&map, &player);
 	init_window(&map, &player);
 }

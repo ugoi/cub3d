@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/04 18:25:47 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/04 22:02:50 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,10 @@
 #define DEG_TO_RAD 0.01745329251994329576923690768489
 #define FOV 60.0
 #define RESOLUTION 1
-
-typedef struct s_int_vector
-{
-	int	x;
-	int	y;
-}				t_int_vector;
-
-typedef struct s_float_vector
-{
-	float	x;
-	float	y;
-}				t_float_vector;
+#define WIDTH 800
+#define HEIGHT 600
+#include "my_math.h"
+#include "map.h"
 
 typedef struct s_player
 {
@@ -38,12 +30,6 @@ typedef struct s_player
 	t_float_vector	dir;
 	float			radians;
 }				t_player;
-
-typedef struct s_map
-{
-	char			**raw_map;
-	t_int_vector	raw_map_dimensions;
-}				t_map;
 
 typedef struct s_vars
 {
@@ -56,7 +42,6 @@ typedef struct s_vars
 
 int32_t	init_window(t_map *map, t_player *player);
 char	**scale_map(char **map, int scaling_factor);
-int		get_scaling_factor(int width, int height, t_map *map);
 float	add_radians(float radians, float radians_to_add);
 t_int_vector	get_map_dimesnions(char **map);
 
