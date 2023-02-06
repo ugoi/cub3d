@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/04 22:02:50 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 01:39:42 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,9 @@
 
 # include <stdint.h>
 # include "MLX42.h"
-# define PI 3.14159265358979323846
-#define DEG_TO_RAD 0.01745329251994329576923690768489
-#define FOV 60.0
-#define RESOLUTION 1
-#define WIDTH 800
-#define HEIGHT 600
 #include "my_math.h"
 #include "map.h"
-
-typedef struct s_player
-{
-	t_float_vector	pos;
-	t_float_vector	dir;
-	float			radians;
-}				t_player;
+#include "player.h"
 
 typedef struct s_vars
 {

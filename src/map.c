@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include "MLX42.h"
+#include "./include/player.h"
+#include "./include/colors.h"
 
 char *get_next_line(int fd)
 {
@@ -126,6 +129,59 @@ t_int_vector	get_map_dimesnions(char **map)
 		map_dimensions.y++;
 	}
 	return (map_dimensions);
+}
+
+int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
+{
+	float				scaling_factor;
+	int				player_size;
+	int				top_left_x;
+	int				top_left_y;
+	// t_int_vector	scaled_player_pos;
+
+	scaling_factor = map->minimap_scaling_factor;
+	// scaled_player_pos = get_scaled_pos(player->pos, scaling_factor);
+	player_size = scaling_factor / 4;
+	top_left_x = player->pos.x * scaling_factor;
+	while (top_left_x < player->pos.x * scaling_factor + player_size)
+	{
+		top_left_y = player->pos.y * scaling_factor;
+		while (top_left_y < player->pos.y * scaling_factor + player_size)
+		{
+			mlx_put_pixel(map_img, top_left_x, top_left_y, get_rgba(GREEN));
+			top_left_y++;
+		}
+		top_left_x++;
+	}
+	// draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED), 2);
+	return (0);
+}
+
+int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
+{
+	char **scaled_map = map->mini_map;
+
+	uint32_t x = 0;
+	uint32_t y = 0;
+	while (scaled_map[y])
+	{
+		while (scaled_map[y][x])
+		{
+			if (scaled_map[y][x] == '1')
+			{
+				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
+			}
+			else
+			{
+				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
+			}
+			x++;
+		}
+		x = 0;
+		y++;
+	}
+	draw_player(map_img, player, map);
+	return (0);
 }
 
 void map_constructor(t_map *map)

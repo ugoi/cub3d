@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/04 22:19:04 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 02:39:42 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,116 +20,12 @@
 #include "MLX42.h"
 #include <math.h>
 #include "./include/my_math.h"
+#include "./include/map.h"
 
 static void	error(void)
 {
 	puts(mlx_strerror(mlx_errno));
 	exit(EXIT_FAILURE);
-}
-
-int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width)
-{
-    int		x;
-    int		y;
-    int		dx;
-    int		dy;
-    int		sx;
-    int		sy;
-    int		err;
-    int		e2;
-    int     half_width;
-
-    half_width = width / 2;
-
-    x = start.x;
-    y = start.y;
-    dx = abs(end.x - start.x);
-    dy = abs(end.y - start.y);
-    sx = start.x < end.x ? 1 : -1;
-    sy = start.y < end.y ? 1 : -1;
-    err = (dx > dy ? dx : -dy) / 2;
-    while (1)
-    {
-        for (int i = -half_width; i <= half_width; i++)
-            mlx_put_pixel(img, x + i, y, color);
-        if (x == end.x && y == end.y)
-            break ;
-        e2 = err;
-        if (e2 > -dx)
-        {
-            err -= dy;
-            x += sx;
-        }
-        if (e2 < dy)
-        {
-            err += dx;
-            y += sy;
-        }
-    }
-    return (0);
-}
-
-
-t_int_vector get_scaled_player_pos(t_float_vector pos, int scaling_factor)
-{
-	t_int_vector scaled_player_pos;
-
-	scaled_player_pos.x = pos.x * scaling_factor;
-	scaled_player_pos.y = pos.y * scaling_factor;
-	return (scaled_player_pos);
-}
-
-int draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
-{
-	float				scaling_factor;
-	int				player_size;
-	int				top_left_x;
-	int				top_left_y;
-	// t_int_vector	scaled_player_pos;
-
-	scaling_factor = map->minimap_scaling_factor;
-	// scaled_player_pos = get_scaled_player_pos(player->pos, scaling_factor);
-	player_size = scaling_factor / 4;
-	top_left_x = player->pos.x * scaling_factor;
-	while (top_left_x < player->pos.x * scaling_factor + player_size)
-	{
-		top_left_y = player->pos.y * scaling_factor;
-		while (top_left_y < player->pos.y * scaling_factor + player_size)
-		{
-			mlx_put_pixel(map_img, top_left_x, top_left_y, get_rgba(GREEN));
-			top_left_y++;
-		}
-		top_left_x++;
-	}
-	// draw_vector(map_img, scaled_player_pos, (t_int_vector){scaled_player_pos.x + cos(player->radians) * map_img->width / 8, scaled_player_pos.y + sin(player->radians) * map_img->width / 8}, get_rgba(RED), 2);
-	return (0);
-}
-
-int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
-{
-	char **scaled_map = map->mini_map;
-	(void)(player);
-
-	uint32_t x = 0;
-	uint32_t y = 0;
-	while (scaled_map[y])
-	{
-		while (scaled_map[y][x])
-		{
-			if (scaled_map[y][x] == '1')
-			{
-				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
-			}
-			else
-			{
-				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
-			}
-			x++;
-		}
-		x = 0;
-		y++;
-	}
-	return (0);
 }
 
 int	draw_main(mlx_image_t *main_img)
@@ -150,16 +46,6 @@ int	draw_main(mlx_image_t *main_img)
 		y++;
 	}
 	return (0);
-}
-
-float	add_radians(float radians, float radians_to_add)
-{
-	radians += radians_to_add;
-	if (radians > 2 * M_PI)
-		radians -= 2 * M_PI;
-	else if (radians < 0)
-		radians += 2 * M_PI;
-	return (radians);
 }
 
 void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t color)
@@ -200,7 +86,7 @@ void raycast3D(t_vars *vars)
 	float			shortest_distance;
 
 	scaling_factor = vars->map->minimap_scaling_factor;
-	scaled_player_pos = get_scaled_player_pos(vars->player->pos, scaling_factor);
+	scaled_player_pos = get_scaled_pos(vars->player->pos, scaling_factor);
 
 	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
 	i = 0;
@@ -309,7 +195,7 @@ void raycast3D(t_vars *vars)
 			shortest_ray_pos = vertical_ray_pos;
 		}
 		//Draw 2D map
-		draw_vector(vars->map_img, scaled_player_pos, get_scaled_player_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
+		draw_vector(vars->map_img, scaled_player_pos, get_scaled_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
 
 		//Draw 3D walls
 		float ca=add_radians(vars->player->radians, -ray_angle); shortest_distance=shortest_distance*cos(ca);                            //fix fisheye
@@ -402,7 +288,6 @@ int32_t	init_window(t_map *map, t_player *player)
 	if (!vars.map_img)
 		error();
 	draw_map(vars.map_img, map, player);
-	draw_player(vars.map_img, player, map);
 	if (mlx_image_to_window(vars.mlx, vars.map_img, 0, 0) < 0)
 		error();
 	mlx_key_hook(vars.mlx, my_keyhook, &vars);

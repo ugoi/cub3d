@@ -2,8 +2,9 @@
 #define MAP_H
 
 #include "my_math.h"
-#define WIDTH 800
-#define HEIGHT 600
+#include "player.h"
+#include "map.h"
+# include "MLX42.h"
 
 typedef struct s_map
 {
@@ -21,4 +22,6 @@ float			get_fscaling_factor(t_int_vector raw_dimensions, t_int_vector scaled_dim
 char			**init_raw_map(char *map_file);
 t_int_vector	get_map_dimesnions(char **map);
 void			map_constructor(t_map *map);
+int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
+int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
 #endif
