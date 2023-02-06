@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 02:39:42 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 02:45:22 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ void raycast3D(t_vars *vars)
 	
 	t_float_vector	shortest_ray_pos;
 	float			shortest_distance;
+
+	int 			wall_color;
 
 	scaling_factor = vars->map->minimap_scaling_factor;
 	scaled_player_pos = get_scaled_pos(vars->player->pos, scaling_factor);
@@ -184,15 +186,19 @@ void raycast3D(t_vars *vars)
 			}
 			dof++;
 		}
+
+		//Get shortest ray
 		if ((horizontal_distance <= vertical_distance || vertical_distance <= 0) && horizontal_distance > 0)
 		{
 			shortest_distance = horizontal_distance;
 			shortest_ray_pos = horizontal_ray_pos;
+			wall_color = get_rgba(RED);
 		}
 		else
 		{
 			shortest_distance = vertical_distance;
 			shortest_ray_pos = vertical_ray_pos;
+			wall_color = get_rgba(DARK_RED);
 		}
 		//Draw 2D map
 		draw_vector(vars->map_img, scaled_player_pos, get_scaled_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
@@ -207,7 +213,7 @@ void raycast3D(t_vars *vars)
 			line_start = 0;
 		if (line_end > (int)vars->main_img->height)
 			line_end = (int)vars->main_img->height;
-		draw_columns(vars->main_img, i, wall_width, line_start, line_end, get_rgba(WHITE));
+		draw_columns(vars->main_img, i, wall_width, line_start, line_end, wall_color);
 		i++;
 	}
 }
