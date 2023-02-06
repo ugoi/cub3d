@@ -110,6 +110,48 @@ char	**init_raw_map(char *map_file)
 	return (map);
 }
 
+char **init_texture(char *texture_path)
+{
+	char	**map;
+	int		fd;
+	int		i;
+	int		j;
+	char	*line;
+
+	fd = open(texture_path, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Error opening map file %s\n", texture_path);
+		exit(1);
+	}
+	i = 0;
+	while (get_next_line(fd))
+	{
+		i++;
+	}
+	close(fd);
+	fd = open(texture_path, O_RDONLY);
+	map = malloc(sizeof(char *) * (i + 1));
+	i = 0;
+	line = get_next_line(fd);
+	while (line)
+	{
+		j = 0;
+		map[i] = malloc(sizeof(char) * 10);
+		while (line[j] && line[j] != '\n')
+		{
+			map[i][j] = line[j];
+			j++;
+		}
+		map[i][j] = 0;
+		i++;
+		line = get_next_line(fd);
+	}
+	map[i] = NULL;
+	close(fd);
+	return (map);
+}
+
 t_int_vector	get_map_dimesnions(char **map)
 {
 	t_int_vector	map_dimensions;
@@ -187,9 +229,10 @@ int draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 void map_constructor(t_map *map)
 {
 	char		*map_file;
-	
+
 	map_file = "./maps/map1.txt";
 	map->raw_map = init_raw_map(map_file);
+	map->south_texture = init_texture("./textures/south_texture.txt");
 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
 	map->minimap_scaling_factor = get_fscaling_factor(map->raw_map_dimensions, map->minimap_dimensions);

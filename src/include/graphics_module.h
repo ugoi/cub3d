@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 01:39:42 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 20:51:37 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,7 @@ int32_t	init_window(t_map *map, t_player *player);
 char	**scale_map(char **map, int scaling_factor);
 float	add_radians(float radians, float radians_to_add);
 t_int_vector	get_map_dimesnions(char **map);
+void			error(void);
+int	draw_main(mlx_image_t *main_img);
 
 #endif

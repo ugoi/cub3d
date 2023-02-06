@@ -14,6 +14,8 @@ typedef struct s_map
 	char			**mini_map;
 	float			minimap_scaling_factor;
 	t_int_vector	minimap_dimensions;
+
+	char 			**south_texture;
 }				t_map;
 
 char			*get_next_line(int fd);
@@ -24,4 +26,5 @@ t_int_vector	get_map_dimesnions(char **map);
 void			map_constructor(t_map *map);
 int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
 int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
+char			**init_texture(char *texture_path);
 #endif

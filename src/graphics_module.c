@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 14:49:53 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 20:50:37 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "./include/my_math.h"
 #include "./include/map.h"
 
-static void	error(void)
+void	error(void)
 {
 	puts(mlx_strerror(mlx_errno));
 	exit(EXIT_FAILURE);
@@ -78,10 +78,10 @@ void raycast3D(t_vars *vars)
 
 	t_float_vector	horizontal_ray_pos;
 	float			horizontal_distance;
-	
+
 	t_float_vector	vertical_ray_pos;
 	float			vertical_distance;
-	
+
 	t_float_vector	shortest_ray_pos;
 	float			shortest_distance;
 
@@ -222,10 +222,10 @@ void move_player_up(t_vars *vars)
 {
 	float collision_distance = 0.11;
 	t_float_vector collision_point;
-	
+
 	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians);
 	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians);
-	
+
 	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
 		vars->player->pos.x += 0.1 * cos(vars->player->radians);
 	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
@@ -239,11 +239,11 @@ void move_player_down(t_vars *vars)
 {
 	float collision_distance = 0.11;
 	t_float_vector collision_point;
-	
+
 	(void)collision_distance;
 	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians);
 	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians);
-	
+
 	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
 		vars->player->pos.x -= 0.1 * cos(vars->player->radians);
 	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
@@ -257,11 +257,11 @@ void move_player_left(t_vars *vars)
 {
 	float collision_distance = 0.11;
 	t_float_vector collision_point;
-	
+
 	(void)collision_distance;
 	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians + M_PI / 2);
 	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians + M_PI / 2);
-	
+
 	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
 		vars->player->pos.x -= 0.1 * cos(vars->player->radians + M_PI / 2);
 	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
@@ -275,11 +275,11 @@ void move_player_right(t_vars *vars)
 {
 	float collision_distance = 0.11;
 	t_float_vector collision_point;
-	
+
 	(void)collision_distance;
 	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians + M_PI / 2);
 	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians + M_PI / 2);
-	
+
 	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
 		vars->player->pos.x += 0.1 * cos(vars->player->radians + M_PI / 2);
 	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')

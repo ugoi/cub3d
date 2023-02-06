@@ -132,11 +132,55 @@ void test_add_radians(void)
 
 }
 
+void test_init_raw_map()
+{
+	char **map;
+	char *map_path = "textures/south_texture.txt";
+	char expected[] = "00100";
+
+
+	map = init_raw_map(map_path);
+	TEST_ASSERT_EQUAL_STRING(expected, map[0]);
+}
+
+void test_init_texture()
+{
+	char **texture;
+	char *texture_path = "textures/south_texture.txt";
+	char expected[] = "00100";
+
+
+	texture = init_texture(texture_path);
+	TEST_ASSERT_EQUAL_STRING(expected, texture[0]);
+}
+
+void test_texture(void)
+{
+	t_vars		vars;
+
+	vars.mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
+	if (!vars.mlx)
+		error();
+	vars.main_img = mlx_new_image(vars.mlx, vars.mlx->width, vars.mlx->height);
+	if (!vars.main_img)
+		error();
+	draw_main(vars.main_img);
+	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
+		error();
+	mlx_loop(vars.mlx);
+	mlx_delete_image(vars.mlx, vars.map_img);
+	mlx_delete_image(vars.mlx, vars.main_img);
+	mlx_terminate(vars.mlx);
+}
+
 // not needed when using generate_test_runner.rb
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_get_fscaling_factor);
     RUN_TEST(test_scale_map);
 	RUN_TEST(test_add_radians);
+	RUN_TEST(test_init_raw_map);
+	RUN_TEST(test_init_texture);
+	RUN_TEST(test_texture);
     return UNITY_END();
 }
