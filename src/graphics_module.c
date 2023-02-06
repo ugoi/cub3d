@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 02:45:22 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 14:45:10 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,61 +218,112 @@ void raycast3D(t_vars *vars)
 	}
 }
 
+void move_player_up(t_vars *vars)
+{
+	float collision_distance = 0.11;
+	t_float_vector collision_point;
+	
+	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians);
+	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians);
+	
+	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+		vars->player->pos.x += 0.1 * cos(vars->player->radians);
+	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+		vars->player->pos.y += 0.1 * sin(vars->player->radians);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
+void move_player_down(t_vars *vars)
+{
+	float collision_distance = 0.11;
+	t_float_vector collision_point;
+	
+	(void)collision_distance;
+	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians);
+	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians);
+	
+	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+		vars->player->pos.x -= 0.1 * cos(vars->player->radians);
+	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+		vars->player->pos.y -= 0.1 * sin(vars->player->radians);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
+void move_player_left(t_vars *vars)
+{
+	float collision_distance = 0.11;
+	t_float_vector collision_point;
+	
+	(void)collision_distance;
+	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians + M_PI / 2);
+	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians + M_PI / 2);
+	
+	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+		vars->player->pos.x -= 0.1 * cos(vars->player->radians + M_PI / 2);
+	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+		vars->player->pos.y -= 0.1 * sin(vars->player->radians + M_PI / 2);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
+void move_player_right(t_vars *vars)
+{
+	float collision_distance = 0.11;
+	t_float_vector collision_point;
+	
+	(void)collision_distance;
+	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians + M_PI / 2);
+	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians + M_PI / 2);
+	
+	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+		vars->player->pos.x += 0.1 * cos(vars->player->radians + M_PI / 2);
+	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+		vars->player->pos.y += 0.1 * sin(vars->player->radians + M_PI / 2);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
+void rotate_player_left(t_vars *vars)
+{
+	vars->player->radians = add_radians(vars->player->radians, -0.1);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
+void rotate_player_right(t_vars *vars)
+{
+	vars->player->radians = add_radians(vars->player->radians, 0.1);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3D(vars);
+}
+
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
 	t_vars *vars;
 
 	vars = (t_vars*)param;
 	if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
-	{
-		vars->player->pos.x += 0.1 * cos(vars->player->radians);
-		vars->player->pos.y += 0.1 * sin(vars->player->radians);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		move_player_up(vars);
 	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
-	{
-		vars->player->pos.x -= 0.1 * cos(vars->player->radians);
-		vars->player->pos.y -= 0.1 * sin(vars->player->radians);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		move_player_down(vars);
 	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
-	{
-		vars->player->pos.x -= 0.1 * cos(vars->player->radians + M_PI / 2);
-		vars->player->pos.y -= 0.1 * sin(vars->player->radians + M_PI / 2);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		move_player_left(vars);
 	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
-	{
-		vars->player->pos.x += 0.1 * cos(vars->player->radians + M_PI / 2);
-		vars->player->pos.y += 0.1 * sin(vars->player->radians + M_PI / 2);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		move_player_right(vars);
 	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
-	{
-		vars->player->radians = add_radians(vars->player->radians, -0.1);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		rotate_player_left(vars);
 	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
-	{
-		vars->player->radians = add_radians(vars->player->radians, 0.1);
-		draw_map(vars->map_img, vars->map, vars->player);
-		draw_player(vars->map_img, vars->player, vars->map);
-		raycast3D(vars);
-	}
+		rotate_player_right(vars);
 	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
-	{
 		exit(0);
-	}
 }
 
 int32_t	init_window(t_map *map, t_player *player)
