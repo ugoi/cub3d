@@ -6,7 +6,7 @@
 /*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 14:45:10 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/06 14:49:53 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,17 +310,17 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 	t_vars *vars;
 
 	vars = (t_vars*)param;
-	if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_W && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_up(vars);
-	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_S && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_down(vars);
-	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_A && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_left(vars);
-	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_D && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_right(vars);
-	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_LEFT && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		rotate_player_left(vars);
-	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_RIGHT && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		rotate_player_right(vars);
 	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
 		exit(0);
