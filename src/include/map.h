@@ -6,6 +6,12 @@
 #include "map.h"
 # include "MLX42.h"
 
+typedef struct s_texture
+{
+	char			**texture;
+	t_int_vector	dimensions;
+}				t_texture;
+
 typedef struct s_map
 {
 	char			**raw_map;
@@ -15,8 +21,9 @@ typedef struct s_map
 	float			minimap_scaling_factor;
 	t_int_vector	minimap_dimensions;
 
-	char 			**south_texture;
+	t_texture		south_texture;
 }				t_map;
+
 
 char			*get_next_line(int fd);
 char			**scale_map(char **map, int scaling_factor);

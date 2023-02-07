@@ -157,6 +157,13 @@ void test_init_texture()
 void test_texture(void)
 {
 	t_vars		vars;
+	t_float_vector ray_pos;
+	t_texture texture;
+
+	ray_pos = (t_float_vector){1.1, 1};
+
+	texture.texture = init_texture("textures/south_texture.txt");
+	texture.dimensions = get_map_dimesnions(texture.texture);
 
 	vars.mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
 	if (!vars.mlx)
@@ -165,6 +172,7 @@ void test_texture(void)
 	if (!vars.main_img)
 		error();
 	draw_main(vars.main_img);
+	draw_columns_with_texture(vars.main_img, 0, 100, 200, 400, ray_pos, texture);
 	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
 		error();
 	mlx_loop(vars.mlx);

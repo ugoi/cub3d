@@ -232,8 +232,9 @@ void map_constructor(t_map *map)
 
 	map_file = "./maps/map1.txt";
 	map->raw_map = init_raw_map(map_file);
-	map->south_texture = init_texture("./textures/south_texture.txt");
 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
+	map->south_texture.texture = init_texture("./textures/south_texture.txt");
+	map->south_texture.dimensions = get_map_dimesnions(map->south_texture.texture);
 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
 	map->minimap_scaling_factor = get_fscaling_factor(map->raw_map_dimensions, map->minimap_dimensions);
 	map->mini_map = scale_map(map->raw_map, map->minimap_scaling_factor);
