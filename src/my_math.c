@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   my_math.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 01:46:40 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 02:36:21 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/07 23:14:36 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,15 @@ float	add_radians(float radians, float radians_to_add)
 	else if (radians < 0)
 		radians += 2 * M_PI;
 	return (radians);
+}
+
+t_float_vector add_vectors(t_float_vector v1, t_float_vector v2)
+{
+	t_float_vector result;
+
+	result.x = v1.x + v2.x;
+	result.y = v1.y + v2.y;
+	return (result);
 }
 
 int draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width)

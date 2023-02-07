@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/07 22:05:18 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/07 23:52:19 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,103 +31,27 @@ void	error(void)
 
 int	draw_main(mlx_image_t *main_img)
 {
-	uint32_t x = 0;
-	uint32_t y = 0;
+	uint32_t x;
+	uint32_t y;
+	uint32_t color;
+
+	y = 0;
 	while (y < main_img->height)
 	{
+		x = 0;
 		while (x < main_img->width)
 		{
 			if (y < main_img->height / 2)
-				mlx_put_pixel(main_img, x, y, get_rgba(BLUE));
+				color = get_rgba(BLUE);
 			else
-				mlx_put_pixel(main_img, x, y, get_rgba(GRAY));
+				color = get_rgba(GRAY);
+			mlx_put_pixel(main_img, x, y, color);
 			x++;
 		}
-		x = 0;
 		y++;
 	}
 	return (0);
 }
-
-void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t color)
-{
-	int i;
-	int j;
-
-	i = start;
-	while (i < end)
-	{
-		j = 0;
-		while (j < w)
-		{
-			mlx_put_pixel(img, n * w + j, i, color);
-			j++;
-		}
-		i++;
-	}
-}
-
-// void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_float_vector ray_pos, t_texture texture)
-// {
-// 	int i;
-// 	int j;
-// 	int texture_x;
-// 	int texture_y;
-// 	uint32_t color;
-// 	int is_horizontal;
-// 	t_int_vector uncapped_start_end;
-// 	int ty_offset;
-// 	// int ty_step;
-
-// 	// ty_step = texture.dimensions.y / (end - start);
-// 	ty_offset = 0;
-// 	uncapped_start_end.x = start;
-// 	uncapped_start_end.y = end;
-// 	if (start < 0)
-// 		start = 0;
-// 	if (end > (int)img->height)
-// 	{
-// 		end = (int)img->height;
-// 		ty_offset = ((uncapped_start_end.y - uncapped_start_end.x) - (end - start)) / 2;
-// 	}
-
-// 	if (fmod(ray_pos.x, 1.0) == 0)
-// 		is_horizontal = 0;
-// 	else
-// 		is_horizontal = 1;
-// 	i = start;
-// 	while (i < end)
-// 	{
-// 		j = 0;
-// 		while (j < w)
-// 		{
-// 			if (is_horizontal)
-// 			{
-// 				texture_x = (int)(ray_pos.x * texture.dimensions.x) % texture.dimensions.x;
-// 				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
-// 				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
-// 				if (texture.texture[texture_y][texture_x] == '0')
-// 					color = get_rgba(BLACK);
-// 				else if (texture.texture[texture_y][texture_x] == '1')
-// 					color = get_rgba(WHITE);
-// 				mlx_put_pixel(img, n * w + j, i, color);
-// 			}
-// 			else
-// 			{
-// 				texture_x = (int)(ray_pos.y * texture.dimensions.x) % texture.dimensions.x;
-// 				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
-// 				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
-// 				if (texture.texture[texture_y][texture_x] == '0')
-// 					color = get_rgba(BLACK);
-// 				else if (texture.texture[texture_y][texture_x] == '1')
-// 					color = get_rgba(WHITE);
-// 				mlx_put_pixel(img, n * w + j, i, color);
-// 			}
-// 			j++;
-// 		}
-// 		i++;
-// 	}
-// }
 
 enum e_ray_type get_ray_type(t_ray ray)
 {
@@ -147,60 +71,62 @@ enum e_ray_type get_ray_type(t_ray ray)
 	}
 }
 
+bool is_vertical(enum e_ray_type type)
+{
+	return (type == NORTH || type == SOUTH);
+}
+
+
+t_int_vector calculate_texture( t_ray ray, t_texture texture, float ty_ratio)
+{
+	t_int_vector texture_iter;
+
+	if (is_vertical(ray.type))
+		texture_iter.x = (int)(ray.dest.x * texture.dimensions.x) % texture.dimensions.x;
+	else
+		texture_iter.x = (int)(ray.dest.y * texture.dimensions.x) % texture.dimensions.x;
+	texture_iter.y = (int)(texture.dimensions.y * (ty_ratio));
+	if (ray.type == SOUTH || ray.type == WEST)
+		texture_iter.x = texture.dimensions.x - texture_iter.x - 1;
+	return (texture_iter);
+}
+
+uint32_t get_color_from_texture(t_texture texture, t_int_vector texture_iter)
+{
+	uint32_t color;
+
+	color = get_rgba(BLACK);
+	if (texture.texture[texture_iter.y][texture_iter.x] == '0')
+		color = get_rgba(BLACK);
+	else if (texture.texture[texture_iter.y][texture_iter.x] == '1')
+		color = get_rgba(WHITE);
+	return color;
+}
+
 void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_ray ray, t_texture texture)
 {
-	int i;
-	int j;
-	int texture_x;
-	int texture_y;
+	t_int_vector i;
+	t_int_vector texture_iter;
 	uint32_t color;
-	int is_vertical;
 	int ty_offset;
-	t_float_vector ray_pos;
 	int wall_height;
 
-	ray_pos.x = ray.origin.x + ray.ray_vector.x;
-	ray_pos.y = ray.origin.y + ray.ray_vector.y;
-	ty_offset = 0;
 	wall_height = end - start;
-	if (start < 0)
-		start = 0;
-	if (end > (int)img->height)
+    start = max(start, 0);
+    end = min(end, (int)img->height);
+    ty_offset = (wall_height - wall_height * (end - start) / wall_height) / 2;
+	i.x = start;
+	while (i.x < end)
 	{
-		end = (int)img->height;
-		ty_offset = ((wall_height) - (end - start)) / 2;
-	}
-
-	if (ray.type == NORTH || ray.type == SOUTH)
-		is_vertical = 1;
-	else
-		is_vertical = 0;
-	i = start;
-	while (i < end)
-	{
-		j = 0;
-		while (j < w)
+		i.y = 0;
+		while (i.y < w)
 		{
-			if (is_vertical)
-			{
-				texture_x = (int)(ray_pos.x * texture.dimensions.x) % texture.dimensions.x;
-			}
-			else
-			{
-				texture_x = (int)(ray_pos.y * texture.dimensions.x) % texture.dimensions.x;
-			}
-			texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (wall_height));
-			//Flip texture if ray is facing left or up
-			if (ray.type == SOUTH || ray.type == WEST)
-				texture_x = texture.dimensions.x - texture_x - 1;
-			if (texture.texture[texture_y][texture_x] == '0')
-				color = get_rgba(BLACK);
-			else if (texture.texture[texture_y][texture_x] == '1')
-				color = get_rgba(WHITE);
-			mlx_put_pixel(img, n * w + j, i, color);
-			j++;
+			texture_iter = calculate_texture(ray, texture, ((float)i.x - (float)start + (float)ty_offset) / ((float)wall_height));
+			color = get_color_from_texture(texture, texture_iter);
+			mlx_put_pixel(img, n * w + i.y, i.x, color);
+			i.y++;
 		}
-		i++;
+		i.x++;
 	}
 }
 
@@ -365,7 +291,6 @@ void raycast3D(t_vars *vars)
 		float wall_width = (float)vars->main_img->width / (FOV / RESOLUTION);
 		int line_start = vars->main_img->height / 2 - line_height / 2;
 		int line_end = vars->main_img->height / 2 + line_height / 2;
-		// draw_columns(vars->main_img, i, wall_width, line_start, line_end, wall_color);
 		draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, ray, texture);
 		i++;
 	}

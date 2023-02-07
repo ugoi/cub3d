@@ -23,8 +23,9 @@ typedef struct s_float_vector
 	float	y;
 }				t_float_vector;
 
-t_int_vector get_scaled_pos(t_float_vector pos, int scaling_factor);
-float		add_radians(float radians, float radians_to_add);
-int			draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width);
+t_int_vector	get_scaled_pos(t_float_vector pos, int scaling_factor);
+float			add_radians(float radians, float radians_to_add);
+int				draw_vector(mlx_image_t *img, t_int_vector start, t_int_vector end, int color, int width);
+t_float_vector	add_vectors(t_float_vector v1, t_float_vector v2);
 
 #endif
