@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/07 20:01:18 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/07 22:05:18 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,23 +155,20 @@ void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int 
 	int texture_y;
 	uint32_t color;
 	int is_vertical;
-	t_int_vector uncapped_start_end;
 	int ty_offset;
 	t_float_vector ray_pos;
-	// int ty_step;
+	int wall_height;
 
-	// ty_step = texture.dimensions.y / (end - start);
 	ray_pos.x = ray.origin.x + ray.ray_vector.x;
 	ray_pos.y = ray.origin.y + ray.ray_vector.y;
 	ty_offset = 0;
-	uncapped_start_end.x = start;
-	uncapped_start_end.y = end;
+	wall_height = end - start;
 	if (start < 0)
 		start = 0;
 	if (end > (int)img->height)
 	{
 		end = (int)img->height;
-		ty_offset = ((uncapped_start_end.y - uncapped_start_end.x) - (end - start)) / 2;
+		ty_offset = ((wall_height) - (end - start)) / 2;
 	}
 
 	if (ray.type == NORTH || ray.type == SOUTH)
@@ -187,25 +184,20 @@ void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int 
 			if (is_vertical)
 			{
 				texture_x = (int)(ray_pos.x * texture.dimensions.x) % texture.dimensions.x;
-				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
-				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
-				if (texture.texture[texture_y][texture_x] == '0')
-					color = get_rgba(BLACK);
-				else if (texture.texture[texture_y][texture_x] == '1')
-					color = get_rgba(WHITE);
-				mlx_put_pixel(img, n * w + j, i, color);
 			}
 			else
 			{
 				texture_x = (int)(ray_pos.y * texture.dimensions.x) % texture.dimensions.x;
-				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
-				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
-				if (texture.texture[texture_y][texture_x] == '0')
-					color = get_rgba(BLACK);
-				else if (texture.texture[texture_y][texture_x] == '1')
-					color = get_rgba(WHITE);
-				mlx_put_pixel(img, n * w + j, i, color);
 			}
+			texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (wall_height));
+			//Flip texture if ray is facing left or up
+			if (ray.type == SOUTH || ray.type == WEST)
+				texture_x = texture.dimensions.x - texture_x - 1;
+			if (texture.texture[texture_y][texture_x] == '0')
+				color = get_rgba(BLACK);
+			else if (texture.texture[texture_y][texture_x] == '1')
+				color = get_rgba(WHITE);
+			mlx_put_pixel(img, n * w + j, i, color);
 			j++;
 		}
 		i++;
