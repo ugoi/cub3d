@@ -22,6 +22,9 @@ typedef struct s_map
 	t_int_vector	minimap_dimensions;
 
 	t_texture		south_texture;
+	t_texture		north_texture;
+	t_texture		east_texture;
+	t_texture		west_texture;
 }				t_map;
 
 

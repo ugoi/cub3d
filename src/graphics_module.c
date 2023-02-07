@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/07 02:21:30 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/07 20:01:18 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <math.h>
 #include "./include/my_math.h"
 #include "./include/map.h"
+#include "./include/ray.h"
 
 void	error(void)
 {
@@ -66,19 +67,102 @@ void draw_columns(mlx_image_t *img, int n, float w, int start, int end, uint32_t
 	}
 }
 
-void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_float_vector ray_pos, t_texture texture)
+// void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_float_vector ray_pos, t_texture texture)
+// {
+// 	int i;
+// 	int j;
+// 	int texture_x;
+// 	int texture_y;
+// 	uint32_t color;
+// 	int is_horizontal;
+// 	t_int_vector uncapped_start_end;
+// 	int ty_offset;
+// 	// int ty_step;
+
+// 	// ty_step = texture.dimensions.y / (end - start);
+// 	ty_offset = 0;
+// 	uncapped_start_end.x = start;
+// 	uncapped_start_end.y = end;
+// 	if (start < 0)
+// 		start = 0;
+// 	if (end > (int)img->height)
+// 	{
+// 		end = (int)img->height;
+// 		ty_offset = ((uncapped_start_end.y - uncapped_start_end.x) - (end - start)) / 2;
+// 	}
+
+// 	if (fmod(ray_pos.x, 1.0) == 0)
+// 		is_horizontal = 0;
+// 	else
+// 		is_horizontal = 1;
+// 	i = start;
+// 	while (i < end)
+// 	{
+// 		j = 0;
+// 		while (j < w)
+// 		{
+// 			if (is_horizontal)
+// 			{
+// 				texture_x = (int)(ray_pos.x * texture.dimensions.x) % texture.dimensions.x;
+// 				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
+// 				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
+// 				if (texture.texture[texture_y][texture_x] == '0')
+// 					color = get_rgba(BLACK);
+// 				else if (texture.texture[texture_y][texture_x] == '1')
+// 					color = get_rgba(WHITE);
+// 				mlx_put_pixel(img, n * w + j, i, color);
+// 			}
+// 			else
+// 			{
+// 				texture_x = (int)(ray_pos.y * texture.dimensions.x) % texture.dimensions.x;
+// 				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
+// 				texture_y = (int)(texture.dimensions.y * (i - start + ty_offset) / (uncapped_start_end.y - uncapped_start_end.x));
+// 				if (texture.texture[texture_y][texture_x] == '0')
+// 					color = get_rgba(BLACK);
+// 				else if (texture.texture[texture_y][texture_x] == '1')
+// 					color = get_rgba(WHITE);
+// 				mlx_put_pixel(img, n * w + j, i, color);
+// 			}
+// 			j++;
+// 		}
+// 		i++;
+// 	}
+// }
+
+enum e_ray_type get_ray_type(t_ray ray)
+{
+	if (fmod(ray.dest.x, 1.0) == 0)
+	{
+		if (ray.ray_vector.x > 0)
+			return (EAST);
+		else
+			return (WEST);
+	}
+	else
+	{
+		if (ray.ray_vector.y > 0)
+			return (SOUTH);
+		else
+			return (NORTH);
+	}
+}
+
+void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_ray ray, t_texture texture)
 {
 	int i;
 	int j;
 	int texture_x;
 	int texture_y;
 	uint32_t color;
-	int is_horizontal;
+	int is_vertical;
 	t_int_vector uncapped_start_end;
 	int ty_offset;
+	t_float_vector ray_pos;
 	// int ty_step;
 
 	// ty_step = texture.dimensions.y / (end - start);
+	ray_pos.x = ray.origin.x + ray.ray_vector.x;
+	ray_pos.y = ray.origin.y + ray.ray_vector.y;
 	ty_offset = 0;
 	uncapped_start_end.x = start;
 	uncapped_start_end.y = end;
@@ -90,17 +174,17 @@ void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int 
 		ty_offset = ((uncapped_start_end.y - uncapped_start_end.x) - (end - start)) / 2;
 	}
 
-	if (fmod(ray_pos.x, 1.0) == 0)
-		is_horizontal = 0;
+	if (ray.type == NORTH || ray.type == SOUTH)
+		is_vertical = 1;
 	else
-		is_horizontal = 1;
+		is_vertical = 0;
 	i = start;
 	while (i < end)
 	{
 		j = 0;
 		while (j < w)
 		{
-			if (is_horizontal)
+			if (is_vertical)
 			{
 				texture_x = (int)(ray_pos.x * texture.dimensions.x) % texture.dimensions.x;
 				// texture_y = (int)(ray_pos.y * texture.dimensions.y) % texture.dimensions.y;
@@ -147,7 +231,10 @@ void raycast3D(t_vars *vars)
 	t_float_vector	shortest_ray_pos;
 	float			shortest_distance;
 
+	t_ray			ray;
+
 	int 			wall_color;
+	t_texture		texture;
 
 	scaling_factor = vars->map->minimap_scaling_factor;
 	scaled_player_pos = get_scaled_pos(vars->player->pos, scaling_factor);
@@ -262,6 +349,21 @@ void raycast3D(t_vars *vars)
 			shortest_ray_pos = vertical_ray_pos;
 			wall_color = get_rgba(DARK_RED);
 		}
+
+		ray.dest = shortest_ray_pos;
+		ray.origin = vars->player->pos;
+		ray.ray_vector.x = ray.dest.x - ray.origin.x;
+		ray.ray_vector.y = ray.dest.y - ray.origin.y;
+		ray.type = get_ray_type(ray);
+
+		if (ray.type == NORTH)
+			texture = vars->map->north_texture;
+		else if (ray.type == SOUTH)
+			texture = vars->map->south_texture;
+		else if (ray.type == EAST)
+			texture = vars->map->east_texture;
+		else if (ray.type == WEST)
+			texture = vars->map->west_texture;
 		//Draw 2D map
 		draw_vector(vars->map_img, scaled_player_pos, get_scaled_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
 
@@ -272,7 +374,7 @@ void raycast3D(t_vars *vars)
 		int line_start = vars->main_img->height / 2 - line_height / 2;
 		int line_end = vars->main_img->height / 2 + line_height / 2;
 		// draw_columns(vars->main_img, i, wall_width, line_start, line_end, wall_color);
-		draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, shortest_ray_pos, vars->map->south_texture);
+		draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, ray, texture);
 		i++;
 	}
 }

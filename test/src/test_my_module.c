@@ -159,8 +159,11 @@ void test_texture(void)
 	t_vars		vars;
 	t_float_vector ray_pos;
 	t_texture texture;
+	t_ray ray;
 
 	ray_pos = (t_float_vector){1.1, 1};
+	ray.origin = (t_float_vector){0, 0};
+	ray.ray_vector = (t_float_vector){1.1, 1};
 
 	texture.texture = init_texture("textures/south_texture.txt");
 	texture.dimensions = get_map_dimesnions(texture.texture);
@@ -172,7 +175,7 @@ void test_texture(void)
 	if (!vars.main_img)
 		error();
 	draw_main(vars.main_img);
-	draw_columns_with_texture(vars.main_img, 0, 100, 200, 400, ray_pos, texture);
+	draw_columns_with_texture(vars.main_img, 0, 100, 200, 400, ray, texture);
 	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
 		error();
 	mlx_loop(vars.mlx);

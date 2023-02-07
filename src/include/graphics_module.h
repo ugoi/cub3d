@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/06 21:32:58 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/07 18:42:40 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "my_math.h"
 #include "map.h"
 #include "player.h"
+#include "ray.h"
 
 typedef struct s_vars
 {
@@ -34,6 +35,6 @@ float	add_radians(float radians, float radians_to_add);
 t_int_vector	get_map_dimesnions(char **map);
 void			error(void);
 int	draw_main(mlx_image_t *main_img);
-void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_float_vector ray_pos, t_texture texture);
+void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_ray ray, t_texture texture);
 
 #endif
