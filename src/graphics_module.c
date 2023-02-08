@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/07 23:52:19 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/08 00:01:50 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,8 +186,7 @@ void raycast3D(t_vars *vars)
 		if (ray_angle == 0 || ray_angle == M_PI)
 		{
 			horizontal_ray_pos = vars->player->pos;
-			offset.x = 0;
-			offset.y = 0;
+			offset = (t_float_vector){0, 0};
 		}
 
 		while (dof < 8)
@@ -204,8 +203,7 @@ void raycast3D(t_vars *vars)
 			}
 			else
 			{
-				horizontal_ray_pos.x += offset.x;
-				horizontal_ray_pos.y += offset.y;
+				horizontal_ray_pos = add_vectors(horizontal_ray_pos, offset);
 			}
 			dof++;
 		}
@@ -228,10 +226,8 @@ void raycast3D(t_vars *vars)
 		}
 		if (ray_angle == M_PI / 2 || ray_angle == 3 * M_PI / 2)
 		{
-			vertical_ray_pos.x = vars->player->pos.x;
-			vertical_ray_pos.y = vars->player->pos.y;
-			offset.x = 0;
-			offset.y = 0;
+			vertical_ray_pos = vars->player->pos;
+			offset = (t_float_vector){0, 0};
 		}
 
 		while (dof < 8)
@@ -248,8 +244,7 @@ void raycast3D(t_vars *vars)
 			}
 			else
 			{
-				vertical_ray_pos.x += offset.x;
-				vertical_ray_pos.y += offset.y;
+				vertical_ray_pos = add_vectors(vertical_ray_pos, offset);
 			}
 			dof++;
 		}
