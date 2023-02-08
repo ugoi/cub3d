@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/08 00:01:50 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/08 19:15:42 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -420,6 +420,9 @@ int32_t	init_window(t_map *map, t_player *player)
 	draw_map(vars.map_img, map, player);
 	if (mlx_image_to_window(vars.mlx, vars.map_img, 0, 0) < 0)
 		error();
+	draw_map(vars.map_img, vars.map, vars.player);
+	draw_player(vars.map_img, vars.player, vars.map);
+	raycast3D(&vars);
 	mlx_key_hook(vars.mlx, my_keyhook, &vars);
 	mlx_loop(vars.mlx);
 	mlx_delete_image(vars.mlx, vars.map_img);
