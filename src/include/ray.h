@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/07 18:59:09 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/08 21:49:44 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@ typedef struct s_ray
 	t_float_vector 	ray_vector;
 	t_float_vector 	dest;
 	enum e_ray_type	type;
+	float			angle;
+	t_float_vector	offset;
+	t_int_vector	dest_in_map;
+	float			distance;
 }				t_ray;
 
 #endif

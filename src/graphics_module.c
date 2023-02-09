@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/08 19:15:42 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/09 14:22:59 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,163 +130,182 @@ void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int 
 	}
 }
 
+t_texture get_ray_texture(t_ray ray, t_map map)
+{
+	t_texture	texture;
+
+	texture = map.north_texture;
+	if (ray.type == NORTH)
+		texture = map.north_texture;
+	else if (ray.type == SOUTH)
+		texture = map.south_texture;
+	else if (ray.type == EAST)
+		texture = map.east_texture;
+	else if (ray.type == WEST)
+		texture = map.west_texture;
+	return (texture);
+}
+
+t_float_vector calculate_horizontal_ray_dest(t_vars *vars, t_ray horizontal_ray)
+{
+	int	dof;
+
+	dof = 0;
+	if (horizontal_ray.angle < M_PI)
+	{
+		horizontal_ray.dest.y = ceilf(vars->player->pos.y);
+		horizontal_ray.dest.x = vars->player->pos.x + (horizontal_ray.dest.y - vars->player->pos.y) / tanf(horizontal_ray.angle);
+		horizontal_ray.offset.y = 1;
+		horizontal_ray.offset.x = horizontal_ray.offset.y / tanf(horizontal_ray.angle);
+	}
+	else
+	{
+		horizontal_ray.dest.y = floorf(vars->player->pos.y);
+		horizontal_ray.dest.x = vars->player->pos.x + (horizontal_ray.dest.y - vars->player->pos.y) / tanf(horizontal_ray.angle);
+		horizontal_ray.offset.y = -1;
+		horizontal_ray.offset.x = horizontal_ray.offset.y / tanf(horizontal_ray.angle);
+	}
+	if (horizontal_ray.angle == 0 || horizontal_ray.angle == M_PI)
+	{
+		horizontal_ray.dest = vars->player->pos;
+		horizontal_ray.offset = (t_float_vector){0, 0};
+	}
+
+	while (dof < 8)
+	{
+		if (horizontal_ray.offset.y < 0)
+			horizontal_ray.dest_in_map.y = (int)horizontal_ray.dest.y - 1;
+		else
+			horizontal_ray.dest_in_map.y = (int)horizontal_ray.dest.y;
+		horizontal_ray.dest_in_map.x = (int)horizontal_ray.dest.x;
+		if (horizontal_ray.dest_in_map.x < vars->map->raw_map_dimensions.x && horizontal_ray.dest_in_map.x >= 0 && horizontal_ray.dest_in_map.y < vars->map->raw_map_dimensions.y && horizontal_ray.dest_in_map.y >= 0 && vars->map->raw_map[horizontal_ray.dest_in_map.y][horizontal_ray.dest_in_map.x] == '1')
+		{
+			break;
+		}
+		else
+		{
+			horizontal_ray.dest = add_vectors(horizontal_ray.dest, horizontal_ray.offset);
+		}
+		dof++;
+	}
+	return (horizontal_ray.dest);
+}
+
+t_float_vector calculate_vertical_ray_dest(t_vars *vars, t_ray vertical_ray)
+{
+	int dof;
+
+	dof = 0;
+	if (vertical_ray.angle < M_PI / 2 || vertical_ray.angle > 3 * M_PI / 2)
+	{
+		vertical_ray.dest.x = ceilf(vars->player->pos.x);
+		vertical_ray.dest.y = vars->player->pos.y + (vertical_ray.dest.x - vars->player->pos.x) * tanf(vertical_ray.angle);
+		vertical_ray.offset.x = 1;
+		vertical_ray.offset.y = vertical_ray.offset.x * tanf(vertical_ray.angle);
+	}
+	else
+	{
+		vertical_ray.dest.x = floorf(vars->player->pos.x);
+		vertical_ray.dest.y = vars->player->pos.y + (vertical_ray.dest.x - vars->player->pos.x) * tanf(vertical_ray.angle);
+		vertical_ray.offset.x = -1;
+		vertical_ray.offset.y = vertical_ray.offset.x * tanf(vertical_ray.angle);
+	}
+	if (vertical_ray.angle == M_PI / 2 || vertical_ray.angle == 3 * M_PI / 2)
+	{
+		vertical_ray.dest = vars->player->pos;
+		vertical_ray.offset = (t_float_vector){0, 0};
+	}
+
+	while (dof < 8)
+	{
+		if (vertical_ray.offset.x < 0)
+			vertical_ray.dest_in_map.x = (int)vertical_ray.dest.x - 1;
+		else
+			vertical_ray.dest_in_map.x = (int)vertical_ray.dest.x;
+		vertical_ray.dest_in_map.y = (int)vertical_ray.dest.y;
+		if (vertical_ray.dest_in_map.x < vars->map->raw_map_dimensions.x && vertical_ray.dest_in_map.y >= 0 && vertical_ray.dest_in_map.y < vars->map->raw_map_dimensions.y && vertical_ray.dest_in_map.x >= 0 && vars->map->raw_map[vertical_ray.dest_in_map.y][vertical_ray.dest_in_map.x] == '1')
+		{
+			break;
+		}
+		else
+		{
+			vertical_ray.dest = add_vectors(vertical_ray.dest, vertical_ray.offset);
+		}
+		dof++;
+	}
+	return (vertical_ray.dest);
+}
+
+t_ray get_shortest_ray(t_ray horizontal_ray, t_ray vertical_ray, t_vars *vars)
+{
+	t_ray shortest_ray;
+
+	if ((horizontal_ray.distance <= vertical_ray.distance || vertical_ray.distance <= 0) && horizontal_ray.distance > 0)
+	{
+		shortest_ray.distance = horizontal_ray.distance;
+		shortest_ray.dest = horizontal_ray.dest;
+	}
+	else
+	{
+		shortest_ray.distance = vertical_ray.distance;
+		shortest_ray.dest = vertical_ray.dest;
+	}
+
+	shortest_ray.origin = vars->player->pos;
+	shortest_ray.ray_vector.x = shortest_ray.dest.x - shortest_ray.origin.x;
+	shortest_ray.ray_vector.y = shortest_ray.dest.y - shortest_ray.origin.y;
+	shortest_ray.type = get_ray_type(shortest_ray);
+	shortest_ray.angle = horizontal_ray.angle;
+	return (shortest_ray);
+}
+
+void init_start_angle_andplayer_pos(t_vars *vars, t_ray *horizontal_ray, t_ray *vertical_ray)
+{
+	vars->player->scaled_pos = get_scaled_pos(vars->player->pos, vars->map->minimap_scaling_factor);
+	horizontal_ray->angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+	vertical_ray->angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+}
+
+void update_ray_angle_and_distance(t_ray *horizontal_ray, t_ray *vertical_ray)
+{
+	horizontal_ray->distance = 0;
+	vertical_ray->distance = 0;
+	horizontal_ray->angle = add_radians(horizontal_ray->angle, DEG_TO_RAD * RESOLUTION);
+	vertical_ray->angle = add_radians(vertical_ray->angle, DEG_TO_RAD * RESOLUTION);
+}
+
+void draw_3D_walls(t_vars *vars, t_ray shortest_ray, int i, t_texture texture)
+{
+	float ca=add_radians(vars->player->radians, -shortest_ray.angle); shortest_ray.distance=shortest_ray.distance*cos(ca);                            //fix fisheye
+	float line_height = 400.0 / shortest_ray.distance;
+	float wall_width = (float)vars->main_img->width / (FOV / RESOLUTION);
+	int line_start = vars->main_img->height / 2 - line_height / 2;
+	int line_end = vars->main_img->height / 2 + line_height / 2;
+	draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, shortest_ray, texture);
+}
+
 void raycast3D(t_vars *vars)
 {
 	int				i;
-	float			ray_angle;
-	float				scaling_factor;
-	int				dof;
-	t_int_vector	scaled_player_pos;
-	t_float_vector	offset;
-	t_int_vector	ray_pos_in_map;
-
-	t_float_vector	horizontal_ray_pos;
-	float			horizontal_distance;
-
-	t_float_vector	vertical_ray_pos;
-	float			vertical_distance;
-
-	t_float_vector	shortest_ray_pos;
-	float			shortest_distance;
-
-	t_ray			ray;
-
-	int 			wall_color;
+	t_ray			shortest_ray;
+	t_ray			horizontal_ray;
+	t_ray			vertical_ray;
 	t_texture		texture;
 
-	scaling_factor = vars->map->minimap_scaling_factor;
-	scaled_player_pos = get_scaled_pos(vars->player->pos, scaling_factor);
-
-	ray_angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+	init_start_angle_andplayer_pos(vars, &horizontal_ray, &vertical_ray);
 	i = 0;
 	draw_main(vars->main_img);
 	while (i < FOV / RESOLUTION)
 	{
-		horizontal_distance = 0;
-		vertical_distance = 0;
-		shortest_distance = 0;
-		ray_angle = add_radians(ray_angle, DEG_TO_RAD * RESOLUTION);
-
-		//Check horizontal lines
-		dof = 0;
-		if (ray_angle < M_PI)
-		{
-			horizontal_ray_pos.y = ceilf(vars->player->pos.y);
-			horizontal_ray_pos.x = vars->player->pos.x + (horizontal_ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
-			offset.y = 1;
-			offset.x = offset.y / tanf(ray_angle);
-		}
-		else
-		{
-			horizontal_ray_pos.y = floorf(vars->player->pos.y);
-			horizontal_ray_pos.x = vars->player->pos.x + (horizontal_ray_pos.y - vars->player->pos.y) / tanf(ray_angle);
-			offset.y = -1;
-			offset.x = offset.y / tanf(ray_angle);
-		}
-		if (ray_angle == 0 || ray_angle == M_PI)
-		{
-			horizontal_ray_pos = vars->player->pos;
-			offset = (t_float_vector){0, 0};
-		}
-
-		while (dof < 8)
-		{
-			if (offset.y < 0)
-				ray_pos_in_map.y = (int)horizontal_ray_pos.y - 1;
-			else
-				ray_pos_in_map.y = (int)horizontal_ray_pos.y;
-			ray_pos_in_map.x = (int)horizontal_ray_pos.x;
-			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.x >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.y >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
-			{
-				horizontal_distance = hypotf(vars->player->pos.x - horizontal_ray_pos.x, vars->player->pos.y - horizontal_ray_pos.y);
-				break;
-			}
-			else
-			{
-				horizontal_ray_pos = add_vectors(horizontal_ray_pos, offset);
-			}
-			dof++;
-		}
-
-		//Check vertical lines
-		dof = 0;
-		if (ray_angle < M_PI / 2 || ray_angle > 3 * M_PI / 2)
-		{
-			vertical_ray_pos.x = ceilf(vars->player->pos.x);
-			vertical_ray_pos.y = vars->player->pos.y + (vertical_ray_pos.x - vars->player->pos.x) * tanf(ray_angle);
-			offset.x = 1;
-			offset.y = offset.x * tanf(ray_angle);
-		}
-		else
-		{
-			vertical_ray_pos.x = floorf(vars->player->pos.x);
-			vertical_ray_pos.y = vars->player->pos.y + (vertical_ray_pos.x - vars->player->pos.x) * tanf(ray_angle);
-			offset.x = -1;
-			offset.y = offset.x * tanf(ray_angle);
-		}
-		if (ray_angle == M_PI / 2 || ray_angle == 3 * M_PI / 2)
-		{
-			vertical_ray_pos = vars->player->pos;
-			offset = (t_float_vector){0, 0};
-		}
-
-		while (dof < 8)
-		{
-			if (offset.x < 0)
-				ray_pos_in_map.x = (int)vertical_ray_pos.x - 1;
-			else
-				ray_pos_in_map.x = (int)vertical_ray_pos.x;
-			ray_pos_in_map.y = (int)vertical_ray_pos.y;
-			if (ray_pos_in_map.x < vars->map->raw_map_dimensions.x && ray_pos_in_map.y >= 0 && ray_pos_in_map.y < vars->map->raw_map_dimensions.y && ray_pos_in_map.x >= 0 && vars->map->raw_map[ray_pos_in_map.y][ray_pos_in_map.x] == '1')
-			{
-				vertical_distance = hypotf(vars->player->pos.x - vertical_ray_pos.x, vars->player->pos.y - vertical_ray_pos.y);
-				break;
-			}
-			else
-			{
-				vertical_ray_pos = add_vectors(vertical_ray_pos, offset);
-			}
-			dof++;
-		}
-
-		//Get shortest ray
-		if ((horizontal_distance <= vertical_distance || vertical_distance <= 0) && horizontal_distance > 0)
-		{
-			shortest_distance = horizontal_distance;
-			shortest_ray_pos = horizontal_ray_pos;
-			wall_color = get_rgba(RED);
-		}
-		else
-		{
-			shortest_distance = vertical_distance;
-			shortest_ray_pos = vertical_ray_pos;
-			wall_color = get_rgba(DARK_RED);
-		}
-
-		ray.dest = shortest_ray_pos;
-		ray.origin = vars->player->pos;
-		ray.ray_vector.x = ray.dest.x - ray.origin.x;
-		ray.ray_vector.y = ray.dest.y - ray.origin.y;
-		ray.type = get_ray_type(ray);
-
-		if (ray.type == NORTH)
-			texture = vars->map->north_texture;
-		else if (ray.type == SOUTH)
-			texture = vars->map->south_texture;
-		else if (ray.type == EAST)
-			texture = vars->map->east_texture;
-		else if (ray.type == WEST)
-			texture = vars->map->west_texture;
-		//Draw 2D map
-		draw_vector(vars->map_img, scaled_player_pos, get_scaled_pos(shortest_ray_pos, scaling_factor), get_rgba(BLUE), 2);
-
-		//Draw 3D walls
-		float ca=add_radians(vars->player->radians, -ray_angle); shortest_distance=shortest_distance*cos(ca);                            //fix fisheye
-		float line_height = 400.0 / shortest_distance;
-		float wall_width = (float)vars->main_img->width / (FOV / RESOLUTION);
-		int line_start = vars->main_img->height / 2 - line_height / 2;
-		int line_end = vars->main_img->height / 2 + line_height / 2;
-		draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, ray, texture);
+		update_ray_angle_and_distance(&horizontal_ray, &vertical_ray);
+		horizontal_ray.dest = calculate_horizontal_ray_dest(vars, horizontal_ray);
+		horizontal_ray.distance = hypotf(vars->player->pos.x - horizontal_ray.dest.x, vars->player->pos.y - horizontal_ray.dest.y);
+		vertical_ray.dest = calculate_vertical_ray_dest(vars, vertical_ray);
+		vertical_ray.distance = hypotf(vars->player->pos.x - vertical_ray.dest.x, vars->player->pos.y - vertical_ray.dest.y);
+		shortest_ray = get_shortest_ray(horizontal_ray, vertical_ray, vars);
+		texture = get_ray_texture(shortest_ray, *vars->map);
+		draw_vector(vars->map_img, vars->player->scaled_pos, get_scaled_pos(shortest_ray.dest, vars->map->minimap_scaling_factor), get_rgba(BLUE), 2);
+		draw_3D_walls(vars, shortest_ray, i, texture);
 		i++;
 	}
 }
@@ -399,25 +418,30 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 		exit(0);
 }
 
+void init_vars(t_vars *vars, t_map *map, t_player *player)
+{
+	vars->map = map;
+	vars->player = player;
+	vars->mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
+	if (!vars->mlx)
+		error();
+	vars->main_img = mlx_new_image(vars->mlx, vars->mlx->width, vars->mlx->height);
+	if (!vars->main_img)
+		error();
+	vars->map_img = mlx_new_image(vars->mlx, WIDTH / 4, WIDTH / 4);
+	if (!vars->map_img)
+		error();
+}
+
 int32_t	init_window(t_map *map, t_player *player)
 {
 	t_vars		vars;
 
-	vars.map = map;
-	vars.player = player;
-	vars.mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
-	if (!vars.mlx)
-		error();
-	vars.main_img = mlx_new_image(vars.mlx, vars.mlx->width, vars.mlx->height);
-	if (!vars.main_img)
-		error();
+	init_vars(&vars, map, player);
 	draw_main(vars.main_img);
+	draw_map(vars.map_img, map, player);
 	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
 		error();
-	vars.map_img = mlx_new_image(vars.mlx, WIDTH / 4, WIDTH / 4);
-	if (!vars.map_img)
-		error();
-	draw_map(vars.map_img, map, player);
 	if (mlx_image_to_window(vars.mlx, vars.map_img, 0, 0) < 0)
 		error();
 	draw_map(vars.map_img, vars.map, vars.player);
