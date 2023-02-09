@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
+/*   Updated: 2023/02/09 16:24:39 by sdukic           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "./include/map.h"
 #include <stdio.h>
 #include <stdio.h>
@@ -9,11 +21,11 @@
 #include "./include/player.h"
 #include "./include/colors.h"
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-    char *string = malloc(10000), *copy = string;
-    while (read(fd, copy, 1) > 0 && *copy++ != '\n');
-    return (copy > string) ? (*copy = 0, string) : (free(string), NULL);
+	char *string = malloc(10000), *copy = string;
+	while (read(fd, copy, 1) > 0 && *copy++ != '\n');
+	return (copy > string) ? (*copy = 0, string) : (free(string), NULL);
 }
 
 char **scale_map(char **map, int scaling_factor)
@@ -53,7 +65,6 @@ char **scale_map(char **map, int scaling_factor)
 			}
 		}
 	}
-
 	return scaled_map;
 }
 

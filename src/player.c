@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 01:26:24 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/09 12:16:49 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/09 21:52:02 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ int player_constructor(char **map, t_player *player)
 		{
 			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'W' || map[i][j] == 'E')
 			{
-				player->pos.y = i;
-				player->pos.x = j;
+				player->pos.y = (float)i + 0.5;
+				player->pos.x = (float)j + 0.5;
 				if (map[i][j] == 'N')
 					player->radians = 3.0 / 2.0 * M_PI;
 				else if (map[i][j] == 'S')
