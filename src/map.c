@@ -83,10 +83,14 @@ char	**init_raw_map(char *map_file)
 		exit(1);
 	}
 	i = 0;
-	while (get_next_line(fd))
+	line = get_next_line(fd);
+	while (line)
 	{
+		free(line);
+		line = get_next_line(fd);
 		i++;
 	}
+	free(line);
 	close(fd);
 	fd = open(map_file, O_RDONLY);
 	map = malloc(sizeof(char *) * (i + 1));
@@ -95,7 +99,7 @@ char	**init_raw_map(char *map_file)
 	while (line)
 	{
 		j = 0;
-		map[i] = malloc(sizeof(char) * 10);
+		map[i] = malloc(sizeof(char) * 100);
 		while (line[j] && line[j] != '\n')
 		{
 			map[i][j] = line[j];
@@ -103,8 +107,10 @@ char	**init_raw_map(char *map_file)
 		}
 		map[i][j] = 0;
 		i++;
+		free(line);
 		line = get_next_line(fd);
 	}
+	free(line);
 	map[i] = NULL;
 	close(fd);
 	return (map);
@@ -125,10 +131,14 @@ char **init_texture(char *texture_path)
 		exit(1);
 	}
 	i = 0;
-	while (get_next_line(fd))
+	line = get_next_line(fd);
+	while (line)
 	{
+		free(line);
+		line = get_next_line(fd);
 		i++;
 	}
+	free(line);
 	close(fd);
 	fd = open(texture_path, O_RDONLY);
 	map = malloc(sizeof(char *) * (i + 1));
@@ -145,8 +155,10 @@ char **init_texture(char *texture_path)
 		}
 		map[i][j] = 0;
 		i++;
+		free(line);
 		line = get_next_line(fd);
 	}
+	free(line);
 	map[i] = NULL;
 	close(fd);
 	return (map);
@@ -246,4 +258,56 @@ void map_constructor(t_map *map)
 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
 	map->minimap_scaling_factor = get_fscaling_factor(map->raw_map_dimensions, map->minimap_dimensions);
 	map->mini_map = scale_map(map->raw_map, map->minimap_scaling_factor);
+}
+
+void map_destructor(t_map *map)
+{
+	int i = 0;
+
+	while (map->raw_map[i])
+	{
+		free(map->raw_map[i]);
+		i++;
+	}
+	free(map->raw_map);
+
+	i = 0;
+	while (map->south_texture.texture[i])
+	{
+		free(map->south_texture.texture[i]);
+		i++;
+	}
+	free(map->south_texture.texture);
+
+	i = 0;
+	while (map->north_texture.texture[i])
+	{
+		free(map->north_texture.texture[i]);
+		i++;
+	}
+	free(map->north_texture.texture);
+
+	i = 0;
+	while (map->east_texture.texture[i])
+	{
+		free(map->east_texture.texture[i]);
+		i++;
+	}
+	free(map->east_texture.texture);
+
+	i = 0;
+	while (map->west_texture.texture[i])
+	{
+		free(map->west_texture.texture[i]);
+		i++;
+	}
+	free(map->west_texture.texture);
+
+	i = 0;
+	while (map->mini_map[i])
+	{
+		free(map->mini_map[i]);
+		i++;
+	}
+	free(map->mini_map);
 }

@@ -24,7 +24,7 @@ TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES) $(GLFW_INCLUDES) $(MLX42_INCLUDE
 
 # Define compiler flags
 CFLAGS = -Wall -Wextra -Werror
-TEST_CFLAGS = 
+TEST_CFLAGS =
 
 # Define main source file
 MAIN = main.c

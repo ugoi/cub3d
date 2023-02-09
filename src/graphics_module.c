@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/09 14:22:59 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/09 15:22:48 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -397,6 +397,19 @@ void rotate_player_right(t_vars *vars)
 	raycast3D(vars);
 }
 
+void my_mlx_close(void *param)
+{
+	t_vars	*vars;
+
+	vars = (t_vars *)param;
+	map_destructor(vars->map);
+	mlx_delete_image(vars->mlx, vars->map_img);
+	mlx_delete_image(vars->mlx, vars->main_img);
+	mlx_terminate(vars->mlx);
+	printf("Closing window\n");
+	exit(0);
+}
+
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
 	t_vars *vars;
@@ -415,7 +428,7 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 	if (keydata.key == MLX_KEY_RIGHT && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		rotate_player_right(vars);
 	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
-		exit(0);
+		my_mlx_close(vars);
 }
 
 void init_vars(t_vars *vars, t_map *map, t_player *player)
@@ -448,6 +461,7 @@ int32_t	init_window(t_map *map, t_player *player)
 	draw_player(vars.map_img, vars.player, vars.map);
 	raycast3D(&vars);
 	mlx_key_hook(vars.mlx, my_keyhook, &vars);
+	mlx_close_hook(vars.mlx, my_mlx_close, &vars);
 	mlx_loop(vars.mlx);
 	mlx_delete_image(vars.mlx, vars.map_img);
 	mlx_delete_image(vars.mlx, vars.main_img);

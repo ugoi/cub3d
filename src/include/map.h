@@ -37,4 +37,5 @@ void			map_constructor(t_map *map);
 int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
 int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
 char			**init_texture(char *texture_path);
+void			map_destructor(t_map *map);
 #endif
