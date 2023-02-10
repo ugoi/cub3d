@@ -1,9 +1,21 @@
-#ifndef MAP_H
-#define MAP_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map.h                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/10 19:35:03 by sdukic            #+#    #+#             */
+/*   Updated: 2023/02/10 19:35:50 by sdukic           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "my_math.h"
-#include "player.h"
-#include "map.h"
+#ifndef MAP_H
+# define MAP_H
+
+# include "my_math.h"
+# include "player.h"
+# include "map.h"
 # include "MLX42.h"
 
 typedef struct s_texture
@@ -27,10 +39,10 @@ typedef struct s_map
 	t_texture		west_texture;
 }				t_map;
 
-
 char			*get_next_line(int fd);
 char			**scale_map(char **map, int scaling_factor);
-float			get_fscaling_factor(t_int_vector raw_dimensions, t_int_vector scaled_dimensions);
+float			get_fscaling_factor(t_int_vector raw_dimensions,
+					t_int_vector scaled_dimensions);
 char			**init_raw_map(char *map_file);
 t_int_vector	get_map_dimesnions(char **map);
 void			map_constructor(t_map *map);

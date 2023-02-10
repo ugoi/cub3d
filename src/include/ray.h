@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/08 21:49:44 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/10 19:39:34 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ enum e_ray_type
 
 typedef struct s_ray
 {
-	t_float_vector 	origin;
-	t_float_vector 	ray_vector;
-	t_float_vector 	dest;
+	t_float_vector	origin;
+	t_float_vector	ray_vector;
+	t_float_vector	dest;
 	enum e_ray_type	type;
 	float			angle;
 	t_float_vector	offset;

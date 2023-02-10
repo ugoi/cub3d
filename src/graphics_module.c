@@ -6,11 +6,10 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/09 15:22:48 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/10 21:17:56 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "my_module.h"
 #include "graphics_module.h"
 #include "./include/colors.h"
 #include <stdio.h>
@@ -31,9 +30,9 @@ void	error(void)
 
 int	draw_main(mlx_image_t *main_img)
 {
-	uint32_t x;
-	uint32_t y;
-	uint32_t color;
+	uint32_t	x;
+	uint32_t	y;
+	uint32_t	color;
 
 	y = 0;
 	while (y < main_img->height)
@@ -53,7 +52,7 @@ int	draw_main(mlx_image_t *main_img)
 	return (0);
 }
 
-enum e_ray_type get_ray_type(t_ray ray)
+enum e_ray_type	get_ray_type(t_ray ray)
 {
 	if (fmod(ray.dest.x, 1.0) == 0)
 	{
@@ -71,66 +70,70 @@ enum e_ray_type get_ray_type(t_ray ray)
 	}
 }
 
-bool is_vertical(enum e_ray_type type)
+bool	is_vertical(enum e_ray_type type)
 {
 	return (type == NORTH || type == SOUTH);
 }
 
-
-t_int_vector calculate_texture( t_ray ray, t_texture texture, float ty_ratio)
+t_int_vector	calculate_texture( t_ray ray, t_texture texture, float ty_ratio)
 {
-	t_int_vector texture_iter;
+	t_int_vector	texture_iter;
 
 	if (is_vertical(ray.type))
-		texture_iter.x = (int)(ray.dest.x * texture.dimensions.x) % texture.dimensions.x;
+		texture_iter.x = (int)(ray.dest.x * texture.dimensions.x)
+			% texture.dimensions.x;
 	else
-		texture_iter.x = (int)(ray.dest.y * texture.dimensions.x) % texture.dimensions.x;
+		texture_iter.x = (int)(ray.dest.y * texture.dimensions.x)
+			% texture.dimensions.x;
 	texture_iter.y = (int)(texture.dimensions.y * (ty_ratio));
 	if (ray.type == SOUTH || ray.type == WEST)
 		texture_iter.x = texture.dimensions.x - texture_iter.x - 1;
 	return (texture_iter);
 }
 
-uint32_t get_color_from_texture(t_texture texture, t_int_vector texture_iter)
+uint32_t	get_color_from_texture(t_texture texture, t_int_vector texture_iter)
 {
-	uint32_t color;
+	uint32_t	color;
 
 	color = get_rgba(BLACK);
 	if (texture.texture[texture_iter.y][texture_iter.x] == '0')
 		color = get_rgba(BLACK);
 	else if (texture.texture[texture_iter.y][texture_iter.x] == '1')
 		color = get_rgba(WHITE);
-	return color;
+	return (color);
 }
 
-void draw_columns_with_texture(mlx_image_t *img, int n, float w, int start, int end, t_ray ray, t_texture texture)
+void	draw_columns_with_texture(mlx_image_t *img, t_texdim d,
+	t_ray ray, t_texture texture)
 {
-	t_int_vector i;
-	t_int_vector texture_iter;
-	uint32_t color;
-	int ty_offset;
-	int wall_height;
+	t_int_vector	i;
+	t_int_vector	texture_iter;
+	uint32_t		color;
+	int				ty_offset;
+	int				height;
 
-	wall_height = end - start;
-    start = max(start, 0);
-    end = min(end, (int)img->height);
-    ty_offset = (wall_height - wall_height * (end - start) / wall_height) / 2;
-	i.x = start;
-	while (i.x < end)
+	height = d.end - d.start;
+	d.start = max(d.start, 0);
+	d.end = min(d.end, (int)img->height);
+	ty_offset = (height - height * (d.end - d.start) / height) / 2;
+	i.x = d.start;
+	while (i.x < d.end)
 	{
 		i.y = 0;
-		while (i.y < w)
+		while (i.y < d.w)
 		{
-			texture_iter = calculate_texture(ray, texture, ((float)i.x - (float)start + (float)ty_offset) / ((float)wall_height));
+			texture_iter = calculate_texture(ray, texture,
+					((float)i.x - (float)d.start + (float)ty_offset)
+					/ ((float)height));
 			color = get_color_from_texture(texture, texture_iter);
-			mlx_put_pixel(img, n * w + i.y, i.x, color);
+			mlx_put_pixel(img, d.n * d.w + i.y, i.x, color);
 			i.y++;
 		}
 		i.x++;
 	}
 }
 
-t_texture get_ray_texture(t_ray ray, t_map map)
+t_texture	get_ray_texture(t_ray ray, t_map map)
 {
 	t_texture	texture;
 
@@ -146,101 +149,122 @@ t_texture get_ray_texture(t_ray ray, t_map map)
 	return (texture);
 }
 
-t_float_vector calculate_horizontal_ray_dest(t_vars *vars, t_ray horizontal_ray)
+t_ray	calculate_first_horizontal_ray(t_vars *vars, float angle)
+{
+	t_ray	ray;
+
+	if (angle < M_PI)
+	{
+		ray.dest.y = ceilf(vars->player->pos.y);
+		ray.dest.x = vars->player->pos.x
+			+ (ray.dest.y - vars->player->pos.y) / tanf(angle);
+		ray.offset.y = 1;
+		ray.offset.x = ray.offset.y / tanf(angle);
+	}
+	else
+	{
+		ray.dest.y = floorf(vars->player->pos.y);
+		ray.dest.x = vars->player->pos.x
+			+ (ray.dest.y - vars->player->pos.y) / tanf(angle);
+		ray.offset.y = -1;
+		ray.offset.x = ray.offset.y / tanf(angle);
+	}
+	if (angle == 0 || angle == M_PI)
+	{
+		ray.dest = vars->player->pos;
+		ray.offset = (t_float_vector){0, 0};
+	}
+	return (ray);
+}
+
+t_float_vector	calculate_horizontal_ray_dest(t_vars *vars, t_ray ray)
 {
 	int	dof;
 
+	ray = calculate_first_horizontal_ray(vars, ray.angle);
 	dof = 0;
-	if (horizontal_ray.angle < M_PI)
+	while (dof < 8)
 	{
-		horizontal_ray.dest.y = ceilf(vars->player->pos.y);
-		horizontal_ray.dest.x = vars->player->pos.x + (horizontal_ray.dest.y - vars->player->pos.y) / tanf(horizontal_ray.angle);
-		horizontal_ray.offset.y = 1;
-		horizontal_ray.offset.x = horizontal_ray.offset.y / tanf(horizontal_ray.angle);
+		if (ray.offset.y < 0)
+			ray.dest_in_map.y = (int)ray.dest.y - 1;
+		else
+			ray.dest_in_map.y = (int)ray.dest.y;
+		ray.dest_in_map.x = (int)ray.dest.x;
+		if (ray.dest_in_map.x < vars->map->raw_map_dimensions.x
+			&& ray.dest_in_map.x >= 0
+			&& ray.dest_in_map.y < vars->map->raw_map_dimensions.y
+			&& ray.dest_in_map.y >= 0
+			&& vars->map->raw_map[ray.dest_in_map.y]
+			[ray.dest_in_map.x] == '1')
+			break ;
+		else
+			ray.dest = add_vectors(ray.dest, ray.offset);
+		dof++;
+	}
+	return (ray.dest);
+}
+
+t_ray	calculate_first_vertical_ray(t_vars *vars, float angle)
+{
+	t_ray	ray;
+
+	if (angle < M_PI / 2 || angle > 3 * M_PI / 2)
+	{
+		ray.dest.x = ceilf(vars->player->pos.x);
+		ray.dest.y = vars->player->pos.y
+			+ (ray.dest.x - vars->player->pos.x) * tanf(angle);
+		ray.offset.x = 1;
+		ray.offset.y = ray.offset.x * tanf(angle);
 	}
 	else
 	{
-		horizontal_ray.dest.y = floorf(vars->player->pos.y);
-		horizontal_ray.dest.x = vars->player->pos.x + (horizontal_ray.dest.y - vars->player->pos.y) / tanf(horizontal_ray.angle);
-		horizontal_ray.offset.y = -1;
-		horizontal_ray.offset.x = horizontal_ray.offset.y / tanf(horizontal_ray.angle);
+		ray.dest.x = floorf(vars->player->pos.x);
+		ray.dest.y = vars->player->pos.y
+			+ (ray.dest.x - vars->player->pos.x) * tanf(angle);
+		ray.offset.x = -1;
+		ray.offset.y = ray.offset.x * tanf(angle);
 	}
-	if (horizontal_ray.angle == 0 || horizontal_ray.angle == M_PI)
+	if (angle == M_PI / 2 || angle == 3 * M_PI / 2)
 	{
-		horizontal_ray.dest = vars->player->pos;
-		horizontal_ray.offset = (t_float_vector){0, 0};
+		ray.dest = vars->player->pos;
+		ray.offset = (t_float_vector){0, 0};
 	}
-
-	while (dof < 8)
-	{
-		if (horizontal_ray.offset.y < 0)
-			horizontal_ray.dest_in_map.y = (int)horizontal_ray.dest.y - 1;
-		else
-			horizontal_ray.dest_in_map.y = (int)horizontal_ray.dest.y;
-		horizontal_ray.dest_in_map.x = (int)horizontal_ray.dest.x;
-		if (horizontal_ray.dest_in_map.x < vars->map->raw_map_dimensions.x && horizontal_ray.dest_in_map.x >= 0 && horizontal_ray.dest_in_map.y < vars->map->raw_map_dimensions.y && horizontal_ray.dest_in_map.y >= 0 && vars->map->raw_map[horizontal_ray.dest_in_map.y][horizontal_ray.dest_in_map.x] == '1')
-		{
-			break;
-		}
-		else
-		{
-			horizontal_ray.dest = add_vectors(horizontal_ray.dest, horizontal_ray.offset);
-		}
-		dof++;
-	}
-	return (horizontal_ray.dest);
+	return (ray);
 }
 
-t_float_vector calculate_vertical_ray_dest(t_vars *vars, t_ray vertical_ray)
+t_float_vector	calculate_vertical_ray_dest(t_vars *vars, t_ray ray)
 {
-	int dof;
+	int	dof;
 
+	ray = calculate_first_vertical_ray(vars, ray.angle);
 	dof = 0;
-	if (vertical_ray.angle < M_PI / 2 || vertical_ray.angle > 3 * M_PI / 2)
-	{
-		vertical_ray.dest.x = ceilf(vars->player->pos.x);
-		vertical_ray.dest.y = vars->player->pos.y + (vertical_ray.dest.x - vars->player->pos.x) * tanf(vertical_ray.angle);
-		vertical_ray.offset.x = 1;
-		vertical_ray.offset.y = vertical_ray.offset.x * tanf(vertical_ray.angle);
-	}
-	else
-	{
-		vertical_ray.dest.x = floorf(vars->player->pos.x);
-		vertical_ray.dest.y = vars->player->pos.y + (vertical_ray.dest.x - vars->player->pos.x) * tanf(vertical_ray.angle);
-		vertical_ray.offset.x = -1;
-		vertical_ray.offset.y = vertical_ray.offset.x * tanf(vertical_ray.angle);
-	}
-	if (vertical_ray.angle == M_PI / 2 || vertical_ray.angle == 3 * M_PI / 2)
-	{
-		vertical_ray.dest = vars->player->pos;
-		vertical_ray.offset = (t_float_vector){0, 0};
-	}
-
 	while (dof < 8)
 	{
-		if (vertical_ray.offset.x < 0)
-			vertical_ray.dest_in_map.x = (int)vertical_ray.dest.x - 1;
+		if (ray.offset.x < 0)
+			ray.dest_in_map.x = (int)ray.dest.x - 1;
 		else
-			vertical_ray.dest_in_map.x = (int)vertical_ray.dest.x;
-		vertical_ray.dest_in_map.y = (int)vertical_ray.dest.y;
-		if (vertical_ray.dest_in_map.x < vars->map->raw_map_dimensions.x && vertical_ray.dest_in_map.y >= 0 && vertical_ray.dest_in_map.y < vars->map->raw_map_dimensions.y && vertical_ray.dest_in_map.x >= 0 && vars->map->raw_map[vertical_ray.dest_in_map.y][vertical_ray.dest_in_map.x] == '1')
-		{
-			break;
-		}
+			ray.dest_in_map.x = (int)ray.dest.x;
+		ray.dest_in_map.y = (int)ray.dest.y;
+		if (ray.dest_in_map.x < vars->map->raw_map_dimensions.x
+			&& ray.dest_in_map.y >= 0
+			&& ray.dest_in_map.y < vars->map->raw_map_dimensions.y
+			&& ray.dest_in_map.x >= 0
+			&& vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1')
+			break ;
 		else
-		{
-			vertical_ray.dest = add_vectors(vertical_ray.dest, vertical_ray.offset);
-		}
+			ray.dest = add_vectors(ray.dest, ray.offset);
 		dof++;
 	}
-	return (vertical_ray.dest);
+	return (ray.dest);
 }
 
-t_ray get_shortest_ray(t_ray horizontal_ray, t_ray vertical_ray, t_vars *vars)
+t_ray	get_shortest_ray(t_ray horizontal_ray, t_ray vertical_ray, t_vars *vars)
 {
-	t_ray shortest_ray;
+	t_ray	shortest_ray;
 
-	if ((horizontal_ray.distance <= vertical_ray.distance || vertical_ray.distance <= 0) && horizontal_ray.distance > 0)
+	if ((horizontal_ray.distance <= vertical_ray.distance
+			|| vertical_ray.distance <= 0)
+		&& horizontal_ray.distance > 0)
 	{
 		shortest_ray.distance = horizontal_ray.distance;
 		shortest_ray.dest = horizontal_ray.dest;
@@ -250,7 +274,6 @@ t_ray get_shortest_ray(t_ray horizontal_ray, t_ray vertical_ray, t_vars *vars)
 		shortest_ray.distance = vertical_ray.distance;
 		shortest_ray.dest = vertical_ray.dest;
 	}
-
 	shortest_ray.origin = vars->player->pos;
 	shortest_ray.ray_vector.x = shortest_ray.dest.x - shortest_ray.origin.x;
 	shortest_ray.ray_vector.y = shortest_ray.dest.y - shortest_ray.origin.y;
@@ -259,129 +282,161 @@ t_ray get_shortest_ray(t_ray horizontal_ray, t_ray vertical_ray, t_vars *vars)
 	return (shortest_ray);
 }
 
-void init_start_angle_andplayer_pos(t_vars *vars, t_ray *horizontal_ray, t_ray *vertical_ray)
+void	init_start_angle_andplayer_pos(t_vars *vars, t_ray *horizontal_ray,
+	t_ray *vertical_ray)
 {
-	vars->player->scaled_pos = get_scaled_pos(vars->player->pos, vars->map->minimap_scaling_factor);
-	horizontal_ray->angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
-	vertical_ray->angle = add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+	vars->player->scaled_pos
+		= get_scaled_pos(vars->player->pos, vars->map->minimap_scaling_factor);
+	horizontal_ray->angle
+		= add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
+	vertical_ray->angle
+		= add_radians(vars->player->radians, -FOV/2 * DEG_TO_RAD);
 }
 
-void update_ray_angle_and_distance(t_ray *horizontal_ray, t_ray *vertical_ray)
+void	update_ray_angle_and_distance(t_ray *horizontal_ray,
+	t_ray *vertical_ray)
 {
 	horizontal_ray->distance = 0;
 	vertical_ray->distance = 0;
-	horizontal_ray->angle = add_radians(horizontal_ray->angle, DEG_TO_RAD * RESOLUTION);
-	vertical_ray->angle = add_radians(vertical_ray->angle, DEG_TO_RAD * RESOLUTION);
+	horizontal_ray->angle
+		= add_radians(horizontal_ray->angle, DEG_TO_RAD * RESOLUTION);
+	vertical_ray->angle
+		= add_radians(vertical_ray->angle, DEG_TO_RAD * RESOLUTION);
 }
 
-void draw_3D_walls(t_vars *vars, t_ray shortest_ray, int i, t_texture texture)
+void	draw_3D_walls(t_vars *vars, t_ray shortest_ray, int i,
+	t_texture texture)
 {
-	float ca=add_radians(vars->player->radians, -shortest_ray.angle); shortest_ray.distance=shortest_ray.distance*cos(ca);                            //fix fisheye
-	float line_height = 400.0 / shortest_ray.distance;
-	float wall_width = (float)vars->main_img->width / (FOV / RESOLUTION);
-	int line_start = vars->main_img->height / 2 - line_height / 2;
-	int line_end = vars->main_img->height / 2 + line_height / 2;
-	draw_columns_with_texture(vars->main_img, i, wall_width, line_start, line_end, shortest_ray, texture);
+	float	ca;
+	float	line_height;
+	float	wall_width;
+	int		line_start;
+	int		line_end;
+
+	ca = add_radians(vars->player->radians, -shortest_ray.angle);
+	shortest_ray.distance = shortest_ray.distance * cos(ca);
+	line_height = 400.0 / shortest_ray.distance;
+	wall_width = (float)vars->main_img->width / (FOV / RESOLUTION);
+	line_start = vars->main_img->height / 2 - line_height / 2;
+	line_end = vars->main_img->height / 2 + line_height / 2;
+	draw_columns_with_texture(vars->main_img, (t_texdim){i, wall_width,
+		line_start, line_end}, shortest_ray, texture);
 }
 
-void raycast3D(t_vars *vars)
+void	raycast3D(t_vars *vars)
 {
 	int				i;
-	t_ray			shortest_ray;
-	t_ray			horizontal_ray;
-	t_ray			vertical_ray;
+	t_ray			s_ray;
+	t_ray			h_ray;
+	t_ray			v_ray;
 	t_texture		texture;
 
-	init_start_angle_andplayer_pos(vars, &horizontal_ray, &vertical_ray);
+	init_start_angle_andplayer_pos(vars, &h_ray, &v_ray);
 	i = 0;
 	draw_main(vars->main_img);
 	while (i < FOV / RESOLUTION)
 	{
-		update_ray_angle_and_distance(&horizontal_ray, &vertical_ray);
-		horizontal_ray.dest = calculate_horizontal_ray_dest(vars, horizontal_ray);
-		horizontal_ray.distance = hypotf(vars->player->pos.x - horizontal_ray.dest.x, vars->player->pos.y - horizontal_ray.dest.y);
-		vertical_ray.dest = calculate_vertical_ray_dest(vars, vertical_ray);
-		vertical_ray.distance = hypotf(vars->player->pos.x - vertical_ray.dest.x, vars->player->pos.y - vertical_ray.dest.y);
-		shortest_ray = get_shortest_ray(horizontal_ray, vertical_ray, vars);
-		texture = get_ray_texture(shortest_ray, *vars->map);
-		draw_vector(vars->map_img, vars->player->scaled_pos, get_scaled_pos(shortest_ray.dest, vars->map->minimap_scaling_factor), get_rgba(BLUE), 2);
-		draw_3D_walls(vars, shortest_ray, i, texture);
+		update_ray_angle_and_distance(&h_ray, &v_ray);
+		h_ray.dest = calculate_horizontal_ray_dest(vars, h_ray);
+		h_ray.distance = hypotf(vars->player->pos.x - h_ray.dest.x,
+				vars->player->pos.y - h_ray.dest.y);
+		v_ray.dest = calculate_vertical_ray_dest(vars, v_ray);
+		v_ray.distance = hypotf(vars->player->pos.x - v_ray.dest.x,
+				vars->player->pos.y - v_ray.dest.y);
+		s_ray = get_shortest_ray(h_ray, v_ray, vars);
+		texture = get_ray_texture(s_ray, *vars->map);
+		draw_vector(vars->map_img, vars->player->scaled_pos,
+			get_scaled_pos(s_ray.dest, vars->map->minimap_scaling_factor));
+		draw_3D_walls(vars, s_ray, i, texture);
 		i++;
 	}
 }
 
-void move_player_up(t_vars *vars)
+void	move_player_up(t_vars *vars)
 {
-	float collision_distance = 0.11;
-	t_float_vector collision_point;
+	float			collision_distance;
+	t_float_vector	collision_point;
 
-	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians);
-	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians);
-
-	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+	collision_distance = 0.11;
+	collision_point.x = vars->player->pos.x
+		+ collision_distance * cos(vars->player->radians);
+	collision_point.y = vars->player->pos.y
+		+ collision_distance * sin(vars->player->radians);
+	if (vars->map->raw_map[(int)vars->player->pos.y]
+		[(int)collision_point.x] != '1')
 		vars->player->pos.x += 0.1 * cos(vars->player->radians);
-	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+	if (vars->map->raw_map[(int)collision_point.y]
+		[(int)vars->player->pos.x] != '1')
 		vars->player->pos.y += 0.1 * sin(vars->player->radians);
 	draw_map(vars->map_img, vars->map, vars->player);
 	draw_player(vars->map_img, vars->player, vars->map);
 	raycast3D(vars);
 }
 
-void move_player_down(t_vars *vars)
+void	move_player_down(t_vars *vars)
 {
-	float collision_distance = 0.11;
-	t_float_vector collision_point;
+	float			collision_distance;
+	t_float_vector	collision_point;
 
-	(void)collision_distance;
-	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians);
-	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians);
-
-	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+	collision_distance = 0.11;
+	collision_point.x = vars->player->pos.x
+		- collision_distance * cos(vars->player->radians);
+	collision_point.y = vars->player->pos.y
+		- collision_distance * sin(vars->player->radians);
+	if (vars->map->raw_map[(int)vars->player->pos.y]
+		[(int)collision_point.x] != '1')
 		vars->player->pos.x -= 0.1 * cos(vars->player->radians);
-	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+	if (vars->map->raw_map[(int)collision_point.y]
+		[(int)vars->player->pos.x] != '1')
 		vars->player->pos.y -= 0.1 * sin(vars->player->radians);
 	draw_map(vars->map_img, vars->map, vars->player);
 	draw_player(vars->map_img, vars->player, vars->map);
 	raycast3D(vars);
 }
 
-void move_player_left(t_vars *vars)
+void	move_player_left(t_vars *vars)
 {
-	float collision_distance = 0.11;
-	t_float_vector collision_point;
+	float			collision_distance;
+	t_float_vector	collision_point;
 
-	(void)collision_distance;
-	collision_point.x = vars->player->pos.x - collision_distance * cos(vars->player->radians + M_PI / 2);
-	collision_point.y = vars->player->pos.y - collision_distance * sin(vars->player->radians + M_PI / 2);
-
-	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+	collision_distance = 0.11;
+	collision_point.x = vars->player->pos.x
+		- collision_distance * cos(vars->player->radians + M_PI / 2);
+	collision_point.y = vars->player->pos.y
+		- collision_distance * sin(vars->player->radians + M_PI / 2);
+	if (vars->map->raw_map[(int)vars->player->pos.y]
+		[(int)collision_point.x] != '1')
 		vars->player->pos.x -= 0.1 * cos(vars->player->radians + M_PI / 2);
-	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+	if (vars->map->raw_map[(int)collision_point.y]
+		[(int)vars->player->pos.x] != '1')
 		vars->player->pos.y -= 0.1 * sin(vars->player->radians + M_PI / 2);
 	draw_map(vars->map_img, vars->map, vars->player);
 	draw_player(vars->map_img, vars->player, vars->map);
 	raycast3D(vars);
 }
 
-void move_player_right(t_vars *vars)
+void	move_player_right(t_vars *vars)
 {
-	float collision_distance = 0.11;
-	t_float_vector collision_point;
+	float			collision_distance;
+	t_float_vector	collision_point;
 
-	(void)collision_distance;
-	collision_point.x = vars->player->pos.x + collision_distance * cos(vars->player->radians + M_PI / 2);
-	collision_point.y = vars->player->pos.y + collision_distance * sin(vars->player->radians + M_PI / 2);
-
-	if (vars->map->raw_map[(int)vars->player->pos.y][(int)collision_point.x] != '1')
+	collision_distance = 0.11;
+	collision_point.x = vars->player->pos.x
+		+ collision_distance * cos(vars->player->radians + M_PI / 2);
+	collision_point.y = vars->player->pos.y
+		+ collision_distance * sin(vars->player->radians + M_PI / 2);
+	if (vars->map->raw_map[(int)vars->player->pos.y]
+		[(int)collision_point.x] != '1')
 		vars->player->pos.x += 0.1 * cos(vars->player->radians + M_PI / 2);
-	if (vars->map->raw_map[(int)collision_point.y][(int)vars->player->pos.x] != '1')
+	if (vars->map->raw_map[(int)collision_point.y]
+		[(int)vars->player->pos.x] != '1')
 		vars->player->pos.y += 0.1 * sin(vars->player->radians + M_PI / 2);
 	draw_map(vars->map_img, vars->map, vars->player);
 	draw_player(vars->map_img, vars->player, vars->map);
 	raycast3D(vars);
 }
 
-void rotate_player_left(t_vars *vars)
+void	rotate_player_left(t_vars *vars)
 {
 	vars->player->radians = add_radians(vars->player->radians, -0.1);
 	draw_map(vars->map_img, vars->map, vars->player);
@@ -389,7 +444,7 @@ void rotate_player_left(t_vars *vars)
 	raycast3D(vars);
 }
 
-void rotate_player_right(t_vars *vars)
+void	rotate_player_right(t_vars *vars)
 {
 	vars->player->radians = add_radians(vars->player->radians, 0.1);
 	draw_map(vars->map_img, vars->map, vars->player);
@@ -397,7 +452,7 @@ void rotate_player_right(t_vars *vars)
 	raycast3D(vars);
 }
 
-void my_mlx_close(void *param)
+void	my_mlx_close(void *param)
 {
 	t_vars	*vars;
 
@@ -410,35 +465,42 @@ void my_mlx_close(void *param)
 	exit(0);
 }
 
-void my_keyhook(mlx_key_data_t keydata, void* param)
+void	my_keyhook(mlx_key_data_t keydata, void* param)
 {
-	t_vars *vars;
+	t_vars	*vars;
 
-	vars = (t_vars*)param;
-	if (keydata.key == MLX_KEY_W && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	vars = (t_vars *)param;
+	if (keydata.key == MLX_KEY_W
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_up(vars);
-	if (keydata.key == MLX_KEY_S && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	if (keydata.key == MLX_KEY_S
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_down(vars);
-	if (keydata.key == MLX_KEY_A && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	if (keydata.key == MLX_KEY_A
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_left(vars);
-	if (keydata.key == MLX_KEY_D && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	if (keydata.key == MLX_KEY_D
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		move_player_right(vars);
-	if (keydata.key == MLX_KEY_LEFT && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	if (keydata.key == MLX_KEY_LEFT
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		rotate_player_left(vars);
-	if (keydata.key == MLX_KEY_RIGHT && (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
+	if (keydata.key == MLX_KEY_RIGHT
+		&& (keydata.action == MLX_REPEAT || keydata.action == MLX_PRESS))
 		rotate_player_right(vars);
 	if (keydata.key == MLX_KEY_ESCAPE && keydata.action == MLX_PRESS)
 		my_mlx_close(vars);
 }
 
-void init_vars(t_vars *vars, t_map *map, t_player *player)
+void	init_vars(t_vars *vars, t_map *map, t_player *player)
 {
 	vars->map = map;
 	vars->player = player;
 	vars->mlx = mlx_init(WIDTH, HEIGHT, "Test", false);
 	if (!vars->mlx)
 		error();
-	vars->main_img = mlx_new_image(vars->mlx, vars->mlx->width, vars->mlx->height);
+	vars->main_img = mlx_new_image(vars->mlx,
+			vars->mlx->width, vars->mlx->height);
 	if (!vars->main_img)
 		error();
 	vars->map_img = mlx_new_image(vars->mlx, WIDTH / 4, WIDTH / 4);

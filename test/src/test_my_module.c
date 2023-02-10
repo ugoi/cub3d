@@ -175,7 +175,7 @@ void test_texture(void)
 	if (!vars.main_img)
 		error();
 	draw_main(vars.main_img);
-	draw_columns_with_texture(vars.main_img, 0, 100, 200, 400, ray, texture);
+	draw_columns_with_texture(vars.main_img, (t_texdim){0, 100, 200, 400}, ray, texture);
 	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
 		error();
 	mlx_loop(vars.mlx);

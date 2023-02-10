@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 01:26:24 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/09 21:52:02 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 00:34:28 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,26 @@
 #include "./include/player.h"
 #include <math.h>
 
-int player_constructor(char **map, t_player *player)
+bool	is_player(char c)
+{
+	if (c == 'N' || c == 'S' || c == 'W' || c == 'E')
+		return (true);
+	return (false);
+}
+
+void	set_player_direction(t_player *player, char c)
+{
+	if (c == 'N')
+		player->radians = 3.0 / 2.0 * M_PI;
+	else if (c == 'S')
+		player->radians = M_PI / 2.0;
+	else if (c == 'W')
+		player->radians = M_PI;
+	else if (c == 'E')
+		player->radians = 0;
+}
+
+int	player_constructor(char **map, t_player *player)
 {
 	int			i;
 	int			j;
@@ -25,18 +44,10 @@ int player_constructor(char **map, t_player *player)
 		j = 0;
 		while (map[i][j])
 		{
-			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'W' || map[i][j] == 'E')
+			if (is_player(map[i][j]))
 			{
-				player->pos.y = (float)i + 0.5;
-				player->pos.x = (float)j + 0.5;
-				if (map[i][j] == 'N')
-					player->radians = 3.0 / 2.0 * M_PI;
-				else if (map[i][j] == 'S')
-					player->radians = M_PI / 2.0;
-				else if (map[i][j] == 'W')
-					player->radians = M_PI;
-				else if (map[i][j] == 'E')
-					player->radians = 0;
+				player->pos = (t_float_vector){(float)j + 0.5, (float)i + 0.5};
+				set_player_direction(player, map[i][j]);
 				return (0);
 			}
 			j++;

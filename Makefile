@@ -1,5 +1,5 @@
 # Define compiler
-CC = cc
+CC = cc -Wall -Wextra -Werror
 
 BREW = $(shell which brew | rev | cut -c 9- | rev)
 BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)
