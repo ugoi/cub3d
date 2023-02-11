@@ -48,15 +48,17 @@ char	**ft_map_gen(const char *s, char c, char **res, int res_st_i)
 	int				word_start;
 
 	i = 0;
+	word_start = 0;
 	while (i < ft_strlen(s))
 	{
-		word_start = i;
 		in_word = TRUE;
 		while (s[i] != c && in_word && ++i)
 		{
 			if ((s[i] == c) || (s[i] == '\0'))
 			{
 				res[res_st_i] = ft_substr(s, word_start, i - word_start);
+				// printf("%s", res[res_st_i]);
+				word_start = i;
 				if (s[i] == c)
 				{
 					char	*tmp = ft_strdup(res[res_st_i]);

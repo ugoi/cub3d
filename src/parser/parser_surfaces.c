@@ -28,24 +28,10 @@ int	is_valid_num(char *num)
 	return (1);
 }
 
-int	parse_map_floor(char *vals, t_map_parsing *map)
+int	set_floor_vals(t_map_parsing *map, char **split_vals, char *tmp_floor)
 {
-	char	*tmp_floor;
-	char	**split_vals;
-	int		i;
+	int	i;
 
-	tmp_floor  = ft_substr(vals, 0, ft_strlen(vals) - 1);
-	split_vals = ft_split(tmp_floor, ',');
-	if (!split_vals)
-		return (map_error);
-	if (split_count(split_vals) != 3)
-	{
-		map->text_error= 1;
-		free(tmp_floor);
-		ft_free(split_vals);
-		return (map_error);
-	}
-	printf("*Parsing floor:%s:\n", tmp_floor);
 	i = 0;
 	while (split_vals[i])
 	{
@@ -67,30 +53,43 @@ int	parse_map_floor(char *vals, t_map_parsing *map)
 		ft_free(split_vals);
 		return (texture_error);
 	}
+	return (no_errors);
+}
+
+
+int	parse_map_floor(char *vals, t_map_parsing *map)
+{
+	char	*tmp_floor;
+	char	**split_vals;
+	int		error;
+
+	tmp_floor  = ft_substr(vals, 0, ft_strlen(vals) - 1);
+	split_vals = ft_split(tmp_floor, ',');
+	if (!split_vals)
+	{
+		free(tmp_floor);
+		return (map_error);
+	}
+	if (split_count(split_vals) != 3)
+	{
+		map->text_error= 1;
+		free(tmp_floor);
+		ft_free(split_vals);
+		return (map_error);
+	}
+	error = set_floor_vals(map, split_vals, tmp_floor);
+	if (error != no_errors)
+		return (error);
 	free(tmp_floor);
 	ft_free(split_vals);
 	return (no_errors);
 }
 
-
-int	parse_map_ceiling(char *vals, t_map_parsing *map)
+int	set_ceiling_vals(t_map_parsing *map, char **split_vals, char *tmp_ceiling)
 {
-	char	*tmp_ceiling;
-	char	**split_vals;
-	int		i;
+	int	i;
 
-	tmp_ceiling = ft_substr(vals, 0, ft_strlen(vals) - 1);
-	split_vals = ft_split(tmp_ceiling, ',');
-	if (!split_vals)
-		return (map_error);
-	if (split_count(split_vals) != 3)
-	{
-		free(tmp_ceiling);
-		ft_free(split_vals);
-		return (map_error);
-	}
-	printf("Parsing ceiling:%s:\n", tmp_ceiling);
-		i = 0;
+	i = 0;
 	while (split_vals[i])
 	{
 		if (!is_valid_num(split_vals[i]))
@@ -111,6 +110,32 @@ int	parse_map_ceiling(char *vals, t_map_parsing *map)
 		free(tmp_ceiling);
 		return (texture_error);
 	}
+	return (no_errors);
+}
+
+int	parse_map_ceiling(char *vals, t_map_parsing *map)
+{
+	char	*tmp_ceiling;
+	char	**split_vals;
+	int		error;
+
+	tmp_ceiling = ft_substr(vals, 0, ft_strlen(vals) - 1);
+	split_vals = ft_split(tmp_ceiling, ',');
+	if (!split_vals)
+	{
+		free(tmp_ceiling);
+		return (map_error);
+	}
+	if (split_count(split_vals) != 3)
+	{
+		free(tmp_ceiling);
+		ft_free(split_vals);
+		return (map_error);
+	}
+	printf("Parsing ceiling:%s:\n", tmp_ceiling);
+	error = set_ceiling_vals(map, split_vals, tmp_ceiling);
+	if (error != no_errors)
+		return (error);
 	ft_free(split_vals);
 	free(tmp_ceiling);
 	return (no_errors);

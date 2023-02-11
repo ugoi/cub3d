@@ -30,11 +30,10 @@ int	get_line_after_wall(char **lines)
 	return (-1);
 }
 
-int	is_top_wall_valid(char *tmp_map)
+int	is_first_line_wall(char *tmp_map)
 {
 	int	i;
 	int	in_map;
-	char	**split;
 
 	i = 0;
 	in_map = 0;
@@ -43,11 +42,9 @@ int	is_top_wall_valid(char *tmp_map)
 		if (tmp_map[i] != '\n')
 		{
 			in_map = 1;
-			// line_after_wall = 1;
 			while (in_map)
 			{
-				// printf("%c", tmp_map[i]);
-				if (tmp_map[i] != '1' && tmp_map[i] != '\n')
+				if (tmp_map[i] != '1' && tmp_map[i] != ' ' && tmp_map[i] != '\n')
 				{
 					printf("Error\nTop wall not valid\n");
 					return (FALSE);
@@ -59,33 +56,53 @@ int	is_top_wall_valid(char *tmp_map)
 		}
 		i++;
 	}
+	return (TRUE);
+}
+
+int	is_top_wall_valid(char *tmp_map)
+{
+	int		line_after_wall;
+	int		end_diff;
+	char	*space_end;
+	char	*space_start;
+	char	*wall_start;
+	char	**split;
+	int		map_line_count;
+
+	if (is_first_line_wall(tmp_map) != TRUE)
+		return (FALSE);
 	split = ft_wall_split(tmp_map, '\n');
 	if (!split)
 		return (FALSE);
 	if (!split[0] || !split[1])
 		return (FALSE);
-	int line_after_wall = get_line_after_wall(split);
+	line_after_wall = get_line_after_wall(split);
 	if (line_after_wall == -1)
 	{
-		printf("Error\nMap is invalid\nHas no 0 'spaces'\n");
 		ft_free(split);
 		return (FALSE);
 	}
-	printf("wall line:%s:\n", split[line_after_wall - 1]);
-	printf("After wall:%s\n:", split[line_after_wall]);
-	char *test = ft_strrchr(split[line_after_wall], '0');
-	int	diff = ft_strlen(split[line_after_wall])  - ft_strlen(test);
-	printf("\ntest >%s\nPosition:%d\nWall ends:%zu\n", test, diff, ft_strlen(split[line_after_wall - 1]) - 1);
-	if ((int) ft_strlen(split[line_after_wall - 1]) - 1 >= diff)
+	printf("Num is :%d:\n", split_count(split));
+	map_line_count = split_count(split);
+	int tmp = line_after_wall;
+	while (line_after_wall < map_line_count)
 	{
-		printf("Top is enclosed\nValid\n");
-	}
-	else
+		space_end = ft_strrchr(split[line_after_wall], '0');
+		space_start = ft_strchr(split[line_after_wall], '0');
+		wall_start = ft_strchr(split[line_after_wall - 1], '1');
+		if (!space_end || !space_start || !wall_start)
+			break ;
+		end_diff = ft_strlen(split[line_after_wall])  - ft_strlen(space_end);
+		printf("< %s : %s >\n", split[line_after_wall - 1], split[line_after_wall]);
+		if ((int) ft_strlen(split[line_after_wall - 1]) - 1 < end_diff || \
+	ft_strlen(split[line_after_wall - 1]) - ft_strlen(wall_start) > \
+	ft_strlen(split[line_after_wall]) - ft_strlen(space_start))
 	{
-		printf("Error\nTop wall is not valid 'cause it's not enclosing spaces\n");
+		printf("line of error:%d:\n", line_after_wall);
 		return (FALSE);
 	}
-	// free(test);
+		line_after_wall++;
+	}
 	ft_free(split);
 	return (TRUE);
 }

@@ -23,7 +23,10 @@ int	is_left_wall_valid(char *tmp_map)
 	i = 0;
 	while (split[i])
 	{
-		if (split[i][0] != '1')
+		j = 0;
+		while (split[i][j] == ' ')
+			j++;
+		if (split[i][j] != '1')
 		{
 			ft_free(split);
 			return (FALSE);

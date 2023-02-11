@@ -22,10 +22,11 @@ int	split_count(char **split)
 
 int	is_element(char *line)
 {
-	int	i;
+	int		i;
+	char	**split;
 
 	i = 0;
-	char	**split = ft_split(line, ' ');
+	split = ft_split(line, ' ');
 	if (!split)
 		return (map_error);
 	if (split[0][0] != ' ' && split[0][0] != 'N' && split[0][0] != 'S' \
@@ -33,23 +34,10 @@ int	is_element(char *line)
 && split[0][0] != '0' && split[0][0] != '1'
 	)
 	{
-		printf("__:%c:___\n", split[0][0]);
 		return (texture_error);
+		ft_free(split);
 	}
-
-/* 	while (line[i])
-	{
-		if (line[i] != ' ' && line[i] != 'N' && line[i] != 'S' \
-&& line[i] != 'W' && line[i] != 'E' && line[i] != 'F' && line[i] != 'C')
-{
-		printf(":%c:",line[i]);
-		return (1);
-}
-		if (line[i] == 'N' || line[i] == 'S' \
-|| line[i] == 'W' || line[i] == 'E' || line[i] == 'F' || line[i] == 'C')
-		return (0);
-		i++;
-	} */
+	ft_free(split);
 	return (no_errors);
 }
 
@@ -105,76 +93,77 @@ int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 	return (no_errors);
 }
 
-int	check_line(t_map_parsing *map, char **cub_map, int *cub_map_index)
+int	is_line_valid(t_map_parsing *map)
 {
-	int		i;
 	char	**split;
 
-	i = 0;
-	if (*(map->line) == '\n')
-		return (no_errors);
-	if (is_element(map->line) != no_errors)
-		return (texture_error);
 	if (is_element(map->line) == 0 && map->all_text_set != 1)
 	{
 		split = ft_split(map->line, ' ');
 		if (!split)
-		{
 			return (map_error);
-		}
-		// if (split_count(split) != 2)
-		// {
-		// 	printf("Hello\n");
-		// 	ft_free(split);
-		// 	return (map_error);
-		// }
 		if (check_text_id(split[0], map) != no_errors)
-		{
 			return (elements_error);
-		}
 		if (*(split[0]) != 'F' && *(split[0]) != 'C')
+		{
 			if (check_text_path(split[0], split[1], map) != no_errors)
-			{
 				return (file_error);
-			}
+		}
 		if (map->textures.floor_id == 1 && !map->floor_vals_set)
 		{
 			if (parse_map_floor(split[1], map) != no_errors)
-			{
 				return (map_error);
-			}
 		}
 		else if (map->textures.ceiling_id == 1 && !map->ceiling_vals_set)
 		{
 			if (parse_map_ceiling(split[1], map) != no_errors)
-			{
 				return (map_error);
-			}
 		}
 		ft_free(split);
 	}
-	// else
-	// 	return (map_error);
+	return (no_errors);
+}
+
+int	is_map_lines_valid(t_map_parsing *map, char **cub_map, int *cub_map_index)
+{
+	int	i;
+
+	if (check_map_composition(map->line, map->tmp_map) != no_errors)
+		return (map_error);
+	if (ft_strchr(map->line, '1') || ft_strchr(map->line, '0') || ft_strchr(map->line, 'N') || ft_strchr(map->line, 'S') || ft_strchr(map->line, 'E') ||  ft_strchr(map->line, 'W'))
+	{
+		cub_map[*cub_map_index] = ft_substr(map->line, 0, ft_strlen(map->line));
+		*cub_map_index += 1;
+		i = 0;
+		while (map->line[i] != '\0')
+		{
+			if (map->line[i] == 'N' || map->line[i] == 'S' || \
+	map->line[i] == 'E' || map->line[i] == 'W')
+			{
+				map->player_start_position++;
+			}
+			i++;
+		}
+	}
+	return (no_errors);
+}
+
+int	check_line(t_map_parsing *map, char **cub_map, int *cub_map_index)
+{
+	int		error;
+
+	if (*(map->line) == '\n')
+		return (no_errors);
+	if (is_element(map->line) != no_errors)
+		return (texture_error);
+	error = is_line_valid(map);
+	if (error != no_errors)
+		return (error);
 	if (map->all_text_set == 1)
 	{
-		if (check_map_composition(map->line, map->tmp_map) != no_errors)
-		{
-			return (map_error);
-		}
-		if (ft_strchr(map->line, '1') || ft_strchr(map->line, '0') || ft_strchr(map->line, 'N') || ft_strchr(map->line, 'S') || ft_strchr(map->line, 'E') ||  ft_strchr(map->line, 'W'))
-		{
-			cub_map[*cub_map_index] = ft_substr(map->line, 0, ft_strlen(map->line));
-			*cub_map_index += 1;
-			while (map->line[i] != '\0')
-			{
-				if (map->line[i] == 'N' || map->line[i] == 'S' || \
-		map->line[i] == 'E' || map->line[i] == 'W')
-				{
-					map->player_start_position++;
-				}
-				i++;
-			}
-		}
+		error = is_map_lines_valid(map, cub_map, cub_map_index);
+		if (error != no_errors)
+			return (error);
 	}
 	if (map->textures.east_id == 1 && map->textures.ceiling_id == 1 && map->textures.floor_id == 1 && \
 	map->textures.north_id == 1 && map->textures.south_id == 1 && map->textures.west_id == 1)

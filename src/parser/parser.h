@@ -81,7 +81,7 @@ int		is_top_wall_valid(char *tmp_map);
 
 //Parser_cub3d
 int		check_map(t_map_parsing *map, char **cub_map, int *cub_map_index);
-int		parse_map(char *cub_file);
+int		parse_map(char *cub_file, t_map_parsing *map);
 int		is_file_valid(char *argv[]);
 
 
