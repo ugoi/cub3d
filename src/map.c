@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/11 21:08:29 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 21:38:07 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "./include/player.h"
 #include "./include/colors.h"
 #include "./include/my_math.h"
+#include "../lib/libft/libft.h"
 
 char	*steves_get_next_line(int fd)
 {
@@ -58,7 +59,7 @@ t_int_vector	get_map_dimesnions(char **map)
 	while (map[i] != NULL)
 	{
 		dim.y++;
-		dim.x = max(dim.x, (int)strlen(map[i]));
+		dim.x = max(dim.x, (int)ft_strlen(map[i]));
 		i++;
 	}
 	return (dim);
@@ -73,7 +74,7 @@ void	copy_to_scaled_map(char **scaled_map, char **map, int scaling_factor,
 	while (p.x < dim.y)
 	{
 		p.y = 0;
-		while (p.y < (int)strlen(map[p.x]))
+		while (p.y < (int)ft_strlen(map[p.x]))
 		{
 			p.z = p.x * scaling_factor;
 			while (p.z < (p.x + 1) * scaling_factor)
@@ -151,7 +152,7 @@ t_int_vector	get_map_dimesnions_in_file(char *map_file)
 	line = steves_get_next_line(fd);
 	while (line)
 	{
-		dim.x = max(dim.x, (int)strlen(line));
+		dim.x = max(dim.x, (int)ft_strlen(line));
 		dim.y++;
 		free(line);
 		line = steves_get_next_line(fd);

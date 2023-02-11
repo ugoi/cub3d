@@ -37,7 +37,6 @@ UNITY_SRC = $(UNITY_SRCDIR)/unity.c
 
 # Define object files
 OBJ = $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
-$(info VAR="$(OBJ)")
 MAIN_OBJ = obj/main.o
 TEST_OBJ = $(TEST_OBJDIR)/test_my_module.o
 UNITY_OBJ = $(UNITY_OBJDIR)/unity.o

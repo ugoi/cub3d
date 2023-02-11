@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/10 21:17:56 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 21:34:30 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 
 void	error(void)
 {
-	puts(mlx_strerror(mlx_errno));
+	perror("Error");
 	exit(EXIT_FAILURE);
 }
 
