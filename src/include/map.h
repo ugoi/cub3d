@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:35:03 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/10 19:35:50 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 19:09:41 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "player.h"
 # include "map.h"
 # include "MLX42.h"
+# include "../parser/parser.h"
 
 typedef struct s_texture
 {
@@ -45,7 +46,7 @@ float			get_fscaling_factor(t_int_vector raw_dimensions,
 					t_int_vector scaled_dimensions);
 char			**init_raw_map(char *map_file);
 t_int_vector	get_map_dimesnions(char **map);
-void			map_constructor(t_map *map);
+void			map_constructor(t_map *map, t_map_parsing *map_parsing);
 int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
 int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
 char			**init_texture(char *texture_path);

@@ -4,7 +4,7 @@ CC = cc -Wall -Wextra -Werror
 BREW = $(shell which brew | rev | cut -c 9- | rev)
 BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)
 GLFW = $(BREW)Cellar/glfw/$(BREW_VERSION)
-LIBS = -L$(GLFW)/lib -lglfw -L./lib/MLX42 -lmlx42
+LIBS = -L$(GLFW)/lib -lglfw -L./lib/MLX42 -lmlx42 -L./lib/libft -lft ./lib/gnl/get_next_line.c ./lib/gnl/get_next_line_utils.c
 
 # Define source directories
 SRCDIR = src
@@ -37,6 +37,7 @@ UNITY_SRC = $(UNITY_SRCDIR)/unity.c
 
 # Define object files
 OBJ = $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+$(info VAR="$(OBJ)")
 MAIN_OBJ = obj/main.o
 TEST_OBJ = $(TEST_OBJDIR)/test_my_module.o
 UNITY_OBJ = $(UNITY_OBJDIR)/unity.o
@@ -46,7 +47,7 @@ EXE = a.out
 TEST_EXE = test.out
 
 # Define default target
-all: $(EXE) $(TEST_EXE)
+all: libft $(EXE) $(TEST_EXE)
 # Comment out the line above and uncomment the line below to compile without tests
 # all: $(EXE)
 
@@ -61,6 +62,7 @@ $(TEST_EXE): $(OBJ) $(TEST_OBJ) $(UNITY_OBJ)
 # Define build target for production object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/parser
 	$(CC) $(CFLAGS) $(INCLUDES) $(GLFW_INCLUDES) $(MLX42_INCLUDES) -c $< -o $@
 
 # Define build target for test object files
@@ -82,14 +84,19 @@ run: all
 # Define target to clean up build files
 clean:
 	rm -rf obj $(TEST_OBJDIR)
+	make -C lib/libft clean
 
 fclean : clean
 	rm -f $(EXE) $(TEST_EXE)
+	make -C lib/libft fclean
 
 re : fclean all
 
 debug: CFLAGS += -g -fsanitize=address
 debug: TEST_CFLAGS += -g -fsanitize=address
 debug: re
+
+libft:
+	make -C lib/libft
 
 .PHONY: all test clean fclean re

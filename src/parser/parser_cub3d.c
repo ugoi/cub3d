@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../gnl/get_next_line.h"
-#include "../../../libft/libft.h"
+#include "../../lib/gnl/get_next_line.h"
+#include "../../lib/libft/libft.h"
 
 #include "parser.h"
 
@@ -127,41 +127,41 @@ int	is_file_valid(char *argv[])
 // 	while ()
 // }
 
-int main(int argc, char *argv[])
-{
-	int	valid_file;
-	int	error;
-	t_map_parsing map;
+// int main(int argc, char *argv[])
+// {
+// 	int	valid_file;
+// 	int	error;
+// 	t_map_parsing map;
 
-	if (argc != 2)
-	{
-		printf("Error\nUsage sample: ./cub3d \"./maps/map01.cub\"\n");
-		return (EXIT_FAILURE);
-	}
-	valid_file = is_file_valid(argv);
-	if (valid_file != 0)
-	{
-		return (EXIT_FAILURE);
-	}
-	error = parse_map(argv[1], &map);
-	if (error != 0)
-	{
-		printf("Error:%d:*\n", error);
-		return (EXIT_FAILURE);
-	}
-	printf("%s\n", map.textures.east_path);
-	printf("%s\n", map.textures.north_path);
-	printf("%s\n", map.textures.west_path);
-	printf("%s\n", map.textures.south_path);
-	// Do a check for TEXTURE path if it is valid  !+++===========================IMPORTANT=========================+++++!
-	is_wall_texture_valid(&map);
-	printf("%d, %d, %d\n", map.textures.ceiling1, map.textures.ceiling2, map.textures.ceiling3);
-	printf("%d, %d, %d\n", map.textures.floor1, map.textures.floor2, map.textures.floor3);
-	while (*map.cub3d_map)
-	{
-		printf("%s", *map.cub3d_map);
-		map.cub3d_map++;
-	}
-	// system("leaks a.out");
-	return (EXIT_SUCCESS);
-}
+// 	if (argc != 2)
+// 	{
+// 		printf("Error\nUsage sample: ./cub3d \"./maps/map01.cub\"\n");
+// 		return (EXIT_FAILURE);
+// 	}
+// 	valid_file = is_file_valid(argv);
+// 	if (valid_file != 0)
+// 	{
+// 		return (EXIT_FAILURE);
+// 	}
+// 	error = parse_map(argv[1], &map);
+// 	if (error != 0)
+// 	{
+// 		printf("Error:%d:*\n", error);
+// 		return (EXIT_FAILURE);
+// 	}
+// 	printf("%s\n", map.textures.east_path);
+// 	printf("%s\n", map.textures.north_path);
+// 	printf("%s\n", map.textures.west_path);
+// 	printf("%s\n", map.textures.south_path);
+// 	// Do a check for TEXTURE path if it is valid  !+++===========================IMPORTANT=========================+++++!
+// 	// is_wall_texture_valid(&map);
+// 	printf("%d, %d, %d\n", map.textures.ceiling1, map.textures.ceiling2, map.textures.ceiling3);
+// 	printf("%d, %d, %d\n", map.textures.floor1, map.textures.floor2, map.textures.floor3);
+// 	while (*map.cub3d_map)
+// 	{
+// 		printf("%s", *map.cub3d_map);
+// 		map.cub3d_map++;
+// 	}
+// 	// system("leaks a.out");
+// 	return (EXIT_SUCCESS);
+// }

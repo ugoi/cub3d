@@ -2,4 +2,5 @@
 SRC = *.c
 
 all:
-	cc $(SRC) ../../../gnl/get_next_line.c ../../../gnl/get_next_line_utils.c ../../../libft/libft.a #-g -fsanitize=address
+	@make -C ../../lib/libft
+	cc $(SRC) ../../lib/gnl/get_next_line.c ../../lib/gnl/get_next_line_utils.c ../../lib/libft/libft.a #-g -fsanitize=address

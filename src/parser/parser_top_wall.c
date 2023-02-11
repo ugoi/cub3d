@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../gnl/get_next_line.h"
-#include "../../../libft/libft.h"
+#include "../../lib/gnl/get_next_line.h"
+#include "../../lib/libft/libft.h"
 
 #include "parser.h"
 
@@ -84,7 +84,7 @@ int	is_top_wall_valid(char *tmp_map)
 	}
 	printf("Num is :%d:\n", split_count(split));
 	map_line_count = split_count(split);
-	int tmp = line_after_wall;
+	// int tmp = line_after_wall;
 	while (line_after_wall < map_line_count)
 	{
 		space_end = ft_strrchr(split[line_after_wall], '0');

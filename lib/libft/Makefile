@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+         #
+#    By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/25 16:42:02 by ssergiu           #+#    #+#              #
-#    Updated: 2022/05/03 16:31:39 by bogunlan         ###   ########.fr        #
+#    Updated: 2023/02/11 18:26:00 by sdukic           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,7 +50,8 @@ MANDATORY_FILES = 	ft_strlen \
 					ft_putnbr_fd \
 					ft_strmapi \
 					ft_striteri \
-					ft_split
+					ft_split \
+					# ft_get_next_line
 
 BONUS_FILES =	ft_lstnew \
 				ft_lstadd_front \

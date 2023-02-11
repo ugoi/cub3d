@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 11:14:29 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/11/29 18:38:35 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/11 18:26:07 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <string.h>
 # include <stdlib.h>
 # include <unistd.h>
+# define TRUE 1
+# define FALSE 0
 
 typedef struct s_list
 {
@@ -67,5 +69,6 @@ void		ft_lstclear(t_list **lst, void (*del)(void*));
 void		ft_lstiter(t_list *lst, void (*f)(void *));
 t_list		*ft_lstmap(t_list *lst, void *(*f)(void *), void(*del)(void *));
 char		**ft_free(char **char_pointer);
+// char		*get_next_line(int fd);
 
 #endif
