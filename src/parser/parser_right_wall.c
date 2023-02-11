@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../gnl/get_next_line.h"
-#include "../../../libft/libft.h"
+#include "../../lib/gnl/get_next_line.h"
+#include "../../lib/libft/libft.h"
 
 #include "parser.h"
 
@@ -18,7 +18,7 @@ int	is_right_wall_valid(char *tmp_map)
 		return (0);
 	}
 	int	i;
-	int	j;
+	// int	j;
 
 	i = 0;
 	while (split[i])

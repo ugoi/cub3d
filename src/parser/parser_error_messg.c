@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../gnl/get_next_line.h"
-#include "../../../libft/libft.h"
+#include "../../lib/gnl/get_next_line.h"
+#include "../../lib/libft/libft.h"
 
 #include "parser.h"
 

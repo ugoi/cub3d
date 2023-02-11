@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/10 23:24:23 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 20:06:32 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "./include/colors.h"
 #include "./include/my_math.h"
 
-char	*get_next_line(int fd)
+char	*steves_get_next_line(int fd)
 {
 	char	*string;
 	char	*copy;
@@ -148,13 +148,13 @@ t_int_vector	get_map_dimesnions_in_file(char *map_file)
 		my_error("Could not open map file");
 	dim.y = 0;
 	dim.x = 0;
-	line = get_next_line(fd);
+	line = steves_get_next_line(fd);
 	while (line)
 	{
 		dim.x = max(dim.x, (int)strlen(line));
 		dim.y++;
 		free(line);
-		line = get_next_line(fd);
+		line = steves_get_next_line(fd);
 	}
 	free(line);
 	close(fd);
@@ -184,7 +184,7 @@ void read_map_from_file(char **map, int fd)
 	int		j;
 
 	i = 0;
-	line = get_next_line(fd);
+	line = steves_get_next_line(fd);
 	while (line)
 	{
 		j = 0;
@@ -196,7 +196,7 @@ void read_map_from_file(char **map, int fd)
 		map[i][j] = 0;
 		i++;
 		free(line);
-		line = get_next_line(fd);
+		line = steves_get_next_line(fd);
 	}
 	free(line);
 }
@@ -212,6 +212,26 @@ char **init_raw_map(char *map_file)
 	map = allocate_map_memory(dim);
 	read_map_from_file(map, fd);
 	close(fd);
+	return (map);
+}
+
+char **remove_newlines(char **map)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (map[i])
+	{
+		j = 0;
+		while (map[i][j])
+		{
+			if (map[i][j] == '\n')
+				map[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
 	return (map);
 }
 
@@ -270,23 +290,26 @@ int	draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
 	return (0);
 }
 
-void	map_constructor(t_map *map)
+void	map_constructor(t_map *map, t_map_parsing *map_parsing)
 {
 	char		*map_file;
 
-	map_file = "./maps/map1.txt";
-	map->raw_map = init_raw_map(map_file);
+	(void)map_parsing;
+	map_file = "./maps/map1.cub";
+	map->raw_map = map_parsing->cub3d_map;
+	map->raw_map = remove_newlines(map->raw_map);
 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
-	map->south_texture.texture = init_texture("./textures/south_texture.txt");
+	printf("south texture: %s\n", map_parsing->textures.south_path);
+	map->south_texture.texture = init_texture(map_parsing->textures.south_path);
 	map->south_texture.dimensions = get_map_dimesnions(
 			map->south_texture.texture);
-	map->north_texture.texture = init_texture("./textures/north_texture.txt");
+	map->north_texture.texture = init_texture(map_parsing->textures.north_path);
 	map->north_texture.dimensions = get_map_dimesnions(
 			map->north_texture.texture);
-	map->east_texture.texture = init_texture("./textures/east_texture.txt");
+	map->east_texture.texture = init_texture(map_parsing->textures.east_path);
 	map->east_texture.dimensions = get_map_dimesnions(
 			map->east_texture.texture);
-	map->west_texture.texture = init_texture("./textures/west_texture.txt");
+	map->west_texture.texture = init_texture(map_parsing->textures.west_path);
 	map->west_texture.dimensions = get_map_dimesnions(
 			map->west_texture.texture);
 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
@@ -310,7 +333,7 @@ void	free_2d_array(char **array)
 
 void	map_destructor(t_map *map)
 {
-	free_2d_array(map->raw_map);
+	// free_2d_array(map->raw_map);
 	free_2d_array(map->mini_map);
 	free_2d_array(map->south_texture.texture);
 	free_2d_array(map->north_texture.texture);
