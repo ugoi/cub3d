@@ -27,10 +27,7 @@ int	ft_map_word_count(char const *s, char c)
 				if ((s[i] == c) || s[i] == '\0')
 				{
 					if (s[i] != '\0' && s[i + 1] == c)
-					{
-						printf("Error\n,Invalid Map\n");
 						return (0);
-					}
 					word_count++;
 					in_word = FALSE;
 				}
@@ -57,15 +54,7 @@ char	**ft_map_gen(const char *s, char c, char **res, int res_st_i)
 			if ((s[i] == c) || (s[i] == '\0'))
 			{
 				res[res_st_i] = ft_substr(s, word_start, i - word_start);
-				// printf("%s", res[res_st_i]);
 				word_start = i;
-				if (s[i] == c)
-				{
-					char	*tmp = ft_strdup(res[res_st_i]);
-					free(res[res_st_i]);
-					res[res_st_i] = ft_strjoin(tmp, "0");
-					free(tmp);
-				}
 				if (res[res_st_i] == NULL)
 					return (ft_free(res));
 				res_st_i++;

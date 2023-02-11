@@ -59,15 +59,45 @@ int	is_first_line_wall(char *tmp_map)
 	return (TRUE);
 }
 
-int	is_top_wall_valid(char *tmp_map)
+int	is_map_enclosed(char **split, int line_after_wall)
 {
-	int		line_after_wall;
-	int		end_diff;
 	char	*space_end;
 	char	*space_start;
 	char	*wall_start;
-	char	**split;
+	char	*empty_space;
 	int		map_line_count;
+	int		end_diff;
+	int		end_diff2;
+
+	map_line_count = split_count(split);
+	while (line_after_wall < map_line_count)
+	{
+		space_end = ft_strrchr(split[line_after_wall], '0');
+		empty_space = ft_strrchr(split[line_after_wall], ' ');
+		space_start = ft_strchr(split[line_after_wall], '0');
+		wall_start = ft_strchr(split[line_after_wall - 1], '1');
+		if (!space_end || !space_start || !wall_start || !empty_space)
+			break ;
+		end_diff = ft_strlen(split[line_after_wall])  - ft_strlen(space_end);
+		end_diff2 = ft_strlen(split[line_after_wall] - ft_strlen(empty_space));
+		printf(" %s \n %s >\n", split[line_after_wall - 1], split[line_after_wall]);
+		if ((int) ft_strlen(split[line_after_wall - 1]) - 1 < end_diff || \
+		ft_strlen(split[line_after_wall - 1]) - ft_strlen(wall_start) > \
+		ft_strlen(split[line_after_wall]) - ft_strlen(space_start) ||
+		(int) ft_strlen(split[line_after_wall - 1]) - 1 < end_diff2)
+		{
+			printf("line of error:%d:\n", line_after_wall);
+			return (FALSE);
+		}
+		line_after_wall++;
+	}
+	return (TRUE);
+}
+
+int	is_top_wall_valid(char *tmp_map)
+{
+	int		line_after_wall;
+	char	**split;
 
 	if (is_first_line_wall(tmp_map) != TRUE)
 		return (FALSE);
@@ -83,25 +113,10 @@ int	is_top_wall_valid(char *tmp_map)
 		return (FALSE);
 	}
 	printf("Num is :%d:\n", split_count(split));
-	map_line_count = split_count(split);
-	int tmp = line_after_wall;
-	while (line_after_wall < map_line_count)
+	if (is_map_enclosed(split, line_after_wall) != TRUE)
 	{
-		space_end = ft_strrchr(split[line_after_wall], '0');
-		space_start = ft_strchr(split[line_after_wall], '0');
-		wall_start = ft_strchr(split[line_after_wall - 1], '1');
-		if (!space_end || !space_start || !wall_start)
-			break ;
-		end_diff = ft_strlen(split[line_after_wall])  - ft_strlen(space_end);
-		printf("< %s : %s >\n", split[line_after_wall - 1], split[line_after_wall]);
-		if ((int) ft_strlen(split[line_after_wall - 1]) - 1 < end_diff || \
-	ft_strlen(split[line_after_wall - 1]) - ft_strlen(wall_start) > \
-	ft_strlen(split[line_after_wall]) - ft_strlen(space_start))
-	{
-		printf("line of error:%d:\n", line_after_wall);
+		ft_free(split);
 		return (FALSE);
-	}
-		line_after_wall++;
 	}
 	ft_free(split);
 	return (TRUE);

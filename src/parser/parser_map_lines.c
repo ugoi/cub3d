@@ -65,11 +65,52 @@ int	check_text_id(char *text_id, t_map_parsing *map)
 	return (error);
 }
 
+int	is_wall_texture_valid(char *text_line)
+{
+	int	i;
+	int	error;
+
+	i = 0;
+	if (!text_line)
+		return (no_errors);
+	while (text_line[i])
+	{
+		if (text_line[i] != '1' && text_line[i] != '0' && text_line[i] != '\n')
+			return (texture_error);
+		i++;
+	}
+	printf("%s", text_line);
+	if (strchr(text_line, '1') != NULL || strchr(text_line, ' ') != NULL \
+|| strchr(text_line, '\n') != NULL)
+		error = no_errors;
+	else
+		error = texture_error;
+	return (error);
+}
+
+int	check_texture(char *texture_line, int fd)
+{
+	while (1)
+	{
+		texture_line = get_next_line(fd);
+		if (is_wall_texture_valid(texture_line) != no_errors)
+		{
+			free(texture_line);
+			close(fd);
+			return (texture_error);
+		}
+		if (!texture_line)
+			break ;
+		free(texture_line);
+	}
+	return (no_errors);
+}
 
 int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 {
 	int		fd;
-	char	*tmp_path;;
+	char	*tmp_path;
+	char	*texture_line;
 
 	tmp_path = ft_substr(text_path, 0, ft_strlen(text_path) - 1);
 	fd = open(tmp_path, O_RDONLY);
@@ -80,6 +121,8 @@ int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 		free(tmp_path);
 		return (file_error);
 	}
+	if (check_texture(texture_line, fd) != no_errors)
+		return (texture_error);
 	close(fd);
 	if (strncmp(text_id, "NO", 3) == 0)
 		map->textures.north_path = ft_strdup(tmp_path);
@@ -90,6 +133,21 @@ int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 	else if (strncmp(text_id, "EA", 3) == 0)
 		map->textures.east_path = ft_strdup(tmp_path);
 	free(tmp_path);
+	return (no_errors);
+}
+
+int	is_surface_valid(t_map_parsing *map, char **split)
+{
+	if (map->textures.floor_id == 1 && !map->floor_vals_set)
+	{
+		if (parse_map_floor(split[1], map) != no_errors)
+			return (map_error);
+	}
+	else if (map->textures.ceiling_id == 1 && !map->ceiling_vals_set)
+	{
+		if (parse_map_ceiling(split[1], map) != no_errors)
+			return (map_error);
+	}
 	return (no_errors);
 }
 
@@ -109,16 +167,8 @@ int	is_line_valid(t_map_parsing *map)
 			if (check_text_path(split[0], split[1], map) != no_errors)
 				return (file_error);
 		}
-		if (map->textures.floor_id == 1 && !map->floor_vals_set)
-		{
-			if (parse_map_floor(split[1], map) != no_errors)
-				return (map_error);
-		}
-		else if (map->textures.ceiling_id == 1 && !map->ceiling_vals_set)
-		{
-			if (parse_map_ceiling(split[1], map) != no_errors)
-				return (map_error);
-		}
+		if (is_surface_valid(map, split) != no_errors)
+			return (map_error);
 		ft_free(split);
 	}
 	return (no_errors);

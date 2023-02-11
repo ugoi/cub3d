@@ -27,10 +27,7 @@ int	ft_wall_word_count(char const *s, char c)
 				if ((s[i] == c) || s[i] == '\0')
 				{
 					if (s[i] != '\0' && s[i + 1] == c)
-					{
-						printf("Error\n,Invalid Map\n");
 						return (0);
-					}
 					word_count++;
 					in_word = FALSE;
 				}
