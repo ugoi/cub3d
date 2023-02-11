@@ -112,6 +112,7 @@ int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 	char	*tmp_path;
 	char	*texture_line;
 
+	texture_line = NULL;
 	tmp_path = ft_substr(text_path, 0, ft_strlen(text_path) - 1);
 	fd = open(tmp_path, O_RDONLY);
 	if (fd == -1)
