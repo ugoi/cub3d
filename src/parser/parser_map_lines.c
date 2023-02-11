@@ -80,7 +80,7 @@ int	is_wall_texture_valid(char *text_line)
 		i++;
 	}
 	printf("%s", text_line);
-	if (strchr(text_line, '1') != NULL || strchr(text_line, ' ') != NULL \
+	if (strchr(text_line, '1') != NULL || strchr(text_line, '0') != NULL \
 || strchr(text_line, '\n') != NULL)
 		error = no_errors;
 	else
@@ -90,10 +90,15 @@ int	is_wall_texture_valid(char *text_line)
 
 int	check_texture(char *texture_line, int fd)
 {
+	int	i;
+
+	i = 0;
 	while (1)
 	{
 		texture_line = get_next_line(fd);
-		if (is_wall_texture_valid(texture_line) != no_errors)
+		if (texture_line)
+			i++;
+		if (is_wall_texture_valid(texture_line) != no_errors || i == 0)
 		{
 			free(texture_line);
 			close(fd);
