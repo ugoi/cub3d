@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/11 20:06:32 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 21:08:29 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,8 @@ char **init_raw_map(char *map_file)
 	t_int_vector	dim;
 
 	dim = get_map_dimesnions_in_file(map_file);
+	if (dim.x == 0 || dim.y == 0)
+		my_error("Texture file is empty");
 	fd = open(map_file, O_RDONLY);
 	map = allocate_map_memory(dim);
 	read_map_from_file(map, fd);
@@ -299,7 +301,6 @@ void	map_constructor(t_map *map, t_map_parsing *map_parsing)
 	map->raw_map = map_parsing->cub3d_map;
 	map->raw_map = remove_newlines(map->raw_map);
 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
-	printf("south texture: %s\n", map_parsing->textures.south_path);
 	map->south_texture.texture = init_texture(map_parsing->textures.south_path);
 	map->south_texture.dimensions = get_map_dimesnions(
 			map->south_texture.texture);
