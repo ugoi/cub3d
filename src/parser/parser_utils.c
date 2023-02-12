@@ -85,3 +85,11 @@ char	**ft_map_split(char const *s, char c)
 	sarray = ft_map_gen(s, c, sarray, sarray_start_index);
 	return (sarray);
 }
+
+void	parser_clean_up(t_map_parsing *map)
+{
+	free(map->textures.north_path);
+	free(map->textures.south_path);
+	free(map->textures.west_path);
+	free(map->textures.east_path);
+}

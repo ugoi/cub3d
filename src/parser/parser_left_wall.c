@@ -11,15 +11,16 @@
 
 int	is_left_wall_valid(char *tmp_map)
 {
-	char **split = ft_wall_split(tmp_map, '\n');
+	char	**split;
+	int		i;
+	int		j;
+
+	split = ft_wall_split(tmp_map, '\n');
 	if (!split)
 	{
 		printf("Error\nMap content has unwanted new lines\n");
 		return (0);
 	}
-	int	i;
-	int	j;
-
 	i = 0;
 	while (split[i])
 	{

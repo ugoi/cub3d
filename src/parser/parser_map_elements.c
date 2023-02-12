@@ -6,14 +6,13 @@
 #include <string.h>
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
-
 #include "parser.h"
 
 int	is_composition_valid(char *tmp_map, char **map_line)
 {
 	int		i;
 	int		j;
-	int	tmp_map_len;
+	int		tmp_map_len;
 
 	i = 0;
 	while (map_line[i])
@@ -23,8 +22,10 @@ int	is_composition_valid(char *tmp_map, char **map_line)
 		while (map_line[i][j])
 		{
 			tmp_map[tmp_map_len + j] = map_line[i][j];
-			if (map_line[i][j] != '1' && map_line[i][j] != '0' && map_line[i][j] != '\n' && map_line[i][j] != ' ' && \
-			(map_line[i][j] != 'N' && map_line[i][j] != 'S' && map_line[i][j] != 'E' && map_line[i][j] != 'W'))
+			if (map_line[i][j] != '1' && map_line[i][j] != '0' && \
+			map_line[i][j] != '\n' && map_line[i][j] != ' ' && \
+			(map_line[i][j] != 'N' && map_line[i][j] != 'S' && \
+			map_line[i][j] != 'E' && map_line[i][j] != 'W'))
 			{
 				ft_free(map_line);
 				return (elements_error);

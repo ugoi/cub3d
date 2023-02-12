@@ -6,9 +6,7 @@
 #include <string.h>
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
-
 #include "parser.h"
-
 
 int	split_count(char **split)
 {
@@ -29,9 +27,9 @@ int	is_element(char *line)
 	split = ft_split(line, ' ');
 	if (!split)
 		return (map_error);
-	if (split[0][0] != ' ' && split[0][0] != 'N' && split[0][0] != 'S' \
-&& split[0][0] != 'W' && split[0][0] != 'E' && split[0][0] != 'F' && split[0][0] != 'C' \
-&& split[0][0] != '0' && split[0][0] != '1'
+	if (split[0][0] != ' ' && split[0][0] != 'N' && split[0][0] != 'S' && \
+split[0][0] != 'W' && split[0][0] != 'E' && split[0][0] != 'F' && \
+split[0][0] != 'C' && split[0][0] != '0' && split[0][0] != '1'
 	)
 	{
 		return (texture_error);
@@ -80,17 +78,18 @@ int	is_wall_texture_valid(char *text_line)
 		i++;
 	}
 	printf("%s", text_line);
-	if (strchr(text_line, '1') != NULL || strchr(text_line, '0') != NULL \
-|| strchr(text_line, '\n') != NULL)
+	if (strchr(text_line, '1') != NULL || strchr(text_line, '0') != NULL || \
+strchr(text_line, '\n') != NULL)
 		error = no_errors;
 	else
 		error = texture_error;
 	return (error);
 }
 
-int	check_texture(char *texture_line, int fd)
+int	check_texture(int fd)
 {
-	int	i;
+	int		i;
+	char	*texture_line;
 
 	i = 0;
 	while (1)
@@ -115,19 +114,16 @@ int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
 {
 	int		fd;
 	char	*tmp_path;
-	char	*texture_line;
 
-	texture_line = NULL;
 	tmp_path = ft_substr(text_path, 0, ft_strlen(text_path) - 1);
 	fd = open(tmp_path, O_RDONLY);
 	if (fd == -1)
 	{
-		printf("Error\nNot a valid path to texture");
 		map->text_error = 1;
 		free(tmp_path);
 		return (file_error);
 	}
-	if (check_texture(texture_line, fd) != no_errors)
+	if (check_texture(fd) != no_errors)
 		return (texture_error);
 	close(fd);
 	if (strncmp(text_id, "NO", 3) == 0)
@@ -186,7 +182,9 @@ int	is_map_lines_valid(t_map_parsing *map, char **cub_map, int *cub_map_index)
 
 	if (check_map_composition(map->line, map->tmp_map) != no_errors)
 		return (map_error);
-	if (ft_strchr(map->line, '1') || ft_strchr(map->line, '0') || ft_strchr(map->line, 'N') || ft_strchr(map->line, 'S') || ft_strchr(map->line, 'E') ||  ft_strchr(map->line, 'W'))
+	if (ft_strchr(map->line, '1') || ft_strchr(map->line, '0') || \
+	ft_strchr(map->line, 'N') || ft_strchr(map->line, 'S') || \
+	ft_strchr(map->line, 'E') || ft_strchr(map->line, 'W'))
 	{
 		cub_map[*cub_map_index] = ft_substr(map->line, 0, ft_strlen(map->line));
 		*cub_map_index += 1;
@@ -221,8 +219,9 @@ int	check_line(t_map_parsing *map, char **cub_map, int *cub_map_index)
 		if (error != no_errors)
 			return (error);
 	}
-	if (map->textures.east_id == 1 && map->textures.ceiling_id == 1 && map->textures.floor_id == 1 && \
-	map->textures.north_id == 1 && map->textures.south_id == 1 && map->textures.west_id == 1)
+	if (map->textures.east_id == 1 && map->textures.ceiling_id == 1 && \
+	map->textures.floor_id == 1 && map->textures.north_id == 1 && \
+	map->textures.south_id == 1 && map->textures.west_id == 1)
 		map->all_text_set = 1;
 	return (no_errors);
 }

@@ -67,8 +67,8 @@ int	check_player_position(t_map_parsing *map)
 
 int	parse_map(char *cub_file, t_map_parsing *map)
 {
-	static char *cub_map[MAX_ARG];
-	static int cub_map_index;
+	static char	*cub_map[MAX_ARG];
+	static int	cub_map_index;
 
 	map->player_start_position = 0;
 	open_cub_fiile(map, cub_file);
@@ -79,7 +79,8 @@ int	parse_map(char *cub_file, t_map_parsing *map)
 	}
 	if (check_player_position(map) != no_errors)
 		return (elements_error);
-	if (!is_top_wall_valid(map->tmp_map) || !is_bottom_wall_valid(map->tmp_map) || \
+	if (!is_top_wall_valid(map->tmp_map) || \
+!is_bottom_wall_valid(map->tmp_map) || \
 !is_right_wall_valid(map->tmp_map) || !is_left_wall_valid(map->tmp_map)
 	)
 	{
@@ -114,45 +115,7 @@ int	is_file_valid(char *argv[])
 	if (!params.valid_file)
 	{
 		printf("Error\nFile format not valid\n");
-		return(file_error);
+		return (file_error);
 	}
 	return (0);
 }
-
-
-// int main(int argc, char *argv[])
-// {
-// 	int	valid_file;
-// 	int	error;
-// 	t_map_parsing map;
-
-// 	if (argc != 2)
-// 	{
-// 		printf("Error\nUsage sample: ./cub3d \"./maps/map01.cub\"\n");
-// 		return (map_error);
-// 	}
-// 	valid_file = is_file_valid(argv);
-// 	if (valid_file != 0)
-// 	{
-// 		return (map_error);
-// 	}
-// 	error = parse_map(argv[1], &map);
-// 	if (error != no_errors)
-// 	{
-// 		printf("Error:%d:*\n", error);
-// 		return (error);
-// 	}
-// 	// printf("%s\n", map.textures.east_path);
-// 	// printf("%s\n", map.textures.north_path);
-// 	// printf("%s\n", map.textures.west_path);
-// 	// printf("%s\n", map.textures.south_path);
-// 	// printf("%d, %d, %d\n", map.textures.ceiling1, map.textures.ceiling2, map.textures.ceiling3);
-// 	// printf("%d, %d, %d\n", map.textures.floor1, map.textures.floor2, map.textures.floor3);
-// 	// while (*map.cub3d_map)
-// 	// {
-// 	// 	printf("%s", *map.cub3d_map);
-// 	// 	map.cub3d_map++;
-// 	// }
-// 	system("leaks a.out");
-// 	return (no_errors);
-// }

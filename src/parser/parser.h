@@ -1,4 +1,3 @@
-
 #ifndef PARSER_H
 # define PARSER_H
 
@@ -19,10 +18,9 @@ typedef enum e_parsing_errors
 	wall_error,
 	file_error,
 	elements_error,
-
 }	t_parsing_errors;
 
-typedef struct	s_textures
+typedef struct s_textures
 {
 	int		north_id;
 	int		south_id;
@@ -42,33 +40,57 @@ typedef struct	s_textures
 	char	*east_path;
 }				t_textures;
 
-
 typedef struct s_map_parsing
 {
-	int		x;
-	int		y;
-	int		j;
-	int		fd;
-	int		player_start_position;
-	int		text_error;
-	int		all_text_set;
-	int		top_wall_valid;
-	int		left_wall_valid;
-	int		right_wall_valid;
-	int		bottom_wall_valid;
-	int		floor_vals_set;
-	int		ceiling_vals_set;
-	char	*line;
+	int			x;
+	int			y;
+	int			j;
+	int			fd;
+	int			player_start_position;
+	int			text_error;
+	int			all_text_set;
+	int			top_wall_valid;
+	int			left_wall_valid;
+	int			right_wall_valid;
+	int			bottom_wall_valid;
+	int			floor_vals_set;
+	int			ceiling_vals_set;
+	char		*line;
 	t_textures	textures;
-	char	**cub3d_map;
-	char	tmp_map[MAX_ARG];
+	char		**cub3d_map;
+	char		tmp_map[MAX_ARG];
 }			t_map_parsing;
+
+//Parser_bottom_wall struct
+typedef struct s_b_wall
+{
+	int		line_before_wall;
+	int		end_diff;
+	char	*space_end;
+	char	*space_start;
+	char	*wall_start;
+	int		space_start_index;
+	int		empty_space_index;
+	int		empty_space_at_end_index;
+}				t_b_wall;
+
+typedef struct s_top_wall
+{
+	int	line_after_wall;
+	int	wall_end_1_index;
+	int	wall_end_2_index;
+	int	space_end_1_index;
+	int	space_end_2_index;
+	int	wall_start_1_index;
+	int	wall_start_2_index;
+	int	space_start_1_index;
+	int	space_start_2_index;
+}				t_top_wall;
 
 //Parser_bottom_wall
 int		last_line_is_valid(char *last_line);
 int		get_line_before_wall(char **lines, int index);
 int		is_bottom_wall_valid(char *tmp_map);
-
 
 // Parser_left_wall
 int		is_left_wall_valid(char *tmp_map);
@@ -84,13 +106,11 @@ int		check_map(t_map_parsing *map, char **cub_map, int *cub_map_index);
 int		parse_map(char *cub_file, t_map_parsing *map);
 int		is_file_valid(char *argv[]);
 
-
 // Parser_error_message
 void	cub3d_error_messg(int err, t_map_parsing *map);
 
 // Parser_map_elements
 int		check_map_composition(char *line, char *tmp_map);
-
 
 // Parser_map_lines
 int		split_count(char **split);
@@ -103,7 +123,7 @@ int		check_line(t_map_parsing *map, char **cub_map, int *cub_map_index);
 int		is_valid_num(char *num);
 int		parse_map_floor(char *vals, t_map_parsing *map);
 int		parse_map_ceiling(char *vals, t_map_parsing *map);
-
+int		comma_separator_is_valid(char *texture_vals);
 
 // Parser utils
 int		ft_map_word_count(char const *s, char c);
