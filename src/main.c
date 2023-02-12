@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/11 21:32:57 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 17:47:23 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ int	main(int argc, char *argv[])
 	int				error;
 
 	(void)map_parsing;
-
 	if (argc != 2)
 	{
 		printf("Error\nUsage sample: ./cub3d \"./maps/map01.cub\"\n");

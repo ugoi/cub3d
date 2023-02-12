@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 01:46:40 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/11 00:27:18 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 18:51:32 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ t_float_vector	add_vectors(t_float_vector v1, t_float_vector v2)
 void	init_draw_vector(t_draw_vector_params *p, t_int_vector start,
 	t_int_vector end)
 {
-	p->color = get_rgba(BLUE);
+	p->color = get_rgba(0, 0, 255, 255);
 	p->width = 2;
 	p->half_width = p->width / 2;
 	p->x = start.x;

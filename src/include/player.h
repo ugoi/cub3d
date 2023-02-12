@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 01:25:40 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/10 19:39:22 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/11 23:38:04 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,6 @@ typedef struct s_player
 	float			radians;
 }				t_player;
 
-int	player_constructor(char **map, t_player *player);
+int		player_constructor(char **map, t_player *player);
 
 #endif

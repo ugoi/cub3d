@@ -132,26 +132,15 @@ void test_add_radians(void)
 
 }
 
-void test_init_raw_map()
+void test_init_texture()
 {
 	char **map;
 	char *map_path = "textures/south_texture.txt";
 	char expected[] = "00100";
 
 
-	map = init_raw_map(map_path);
+	map = init_texture(map_path);
 	TEST_ASSERT_EQUAL_STRING(expected, map[0]);
-}
-
-void test_init_texture()
-{
-	char **texture;
-	char *texture_path = "textures/south_texture.txt";
-	char expected[] = "00100";
-
-
-	texture = init_texture(texture_path);
-	TEST_ASSERT_EQUAL_STRING(expected, texture[0]);
 }
 
 void test_texture(void)
@@ -174,7 +163,7 @@ void test_texture(void)
 	vars.main_img = mlx_new_image(vars.mlx, vars.mlx->width, vars.mlx->height);
 	if (!vars.main_img)
 		error();
-	draw_main(vars.main_img);
+	draw_main(vars.main_img, 1, 1);
 	draw_columns_with_texture(vars.main_img, (t_texdim){0, 100, 200, 400}, ray, texture);
 	if (mlx_image_to_window(vars.mlx, vars.main_img, 0, 0) < 0)
 		error();
@@ -190,7 +179,7 @@ int main(void) {
     RUN_TEST(test_get_fscaling_factor);
     RUN_TEST(test_scale_map);
 	RUN_TEST(test_add_radians);
-	RUN_TEST(test_init_raw_map);
+	RUN_TEST(test_init_texture);
 	RUN_TEST(test_init_texture);
 	RUN_TEST(test_texture);
     return UNITY_END();

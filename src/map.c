@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/11 21:38:07 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 19:04:14 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,31 +22,8 @@
 #include "./include/colors.h"
 #include "./include/my_math.h"
 #include "../lib/libft/libft.h"
-
-char	*steves_get_next_line(int fd)
-{
-	char	*string;
-	char	*copy;
-
-	string = malloc(10000);
-	copy = string;
-	while (read(fd, copy, 1) > 0)
-	{
-		if (*copy == '\n')
-			break ;
-	copy++;
-	}
-	if (copy > string)
-	{
-		*copy = 0;
-		return (string);
-	}
-	else
-	{
-		free(string);
-		return (NULL);
-	}
-}
+#include "./include/my_error.h"
+#include <math.h>
 
 t_int_vector	get_map_dimesnions(char **map)
 {
@@ -59,7 +36,7 @@ t_int_vector	get_map_dimesnions(char **map)
 	while (map[i] != NULL)
 	{
 		dim.y++;
-		dim.x = max(dim.x, (int)ft_strlen(map[i]));
+		dim.x = fmaxf(dim.x, (int)ft_strlen(map[i]));
 		i++;
 	}
 	return (dim);
@@ -128,178 +105,17 @@ float	get_fscaling_factor(t_int_vector raw_dimensions,
 
 	scaling_factors.x = (float)scaled_dimensions.x / (float)raw_dimensions.x;
 	scaling_factors.y = (float)scaled_dimensions.y / (float)raw_dimensions.y;
-	scaling_factor = min(scaling_factors.x, scaling_factors.y);
+	scaling_factor = fminf(scaling_factors.x, scaling_factors.y);
 	return (scaling_factor);
-}
-
-void	my_error(char *str)
-{
-	printf("ERROR: %s\n", str);
-	exit(0);
-}
-
-t_int_vector	get_map_dimesnions_in_file(char *map_file)
-{
-	t_int_vector	dim;
-	char			*line;
-	int				fd;
-
-	fd = open(map_file, O_RDONLY);
-	if (fd == -1)
-		my_error("Could not open map file");
-	dim.y = 0;
-	dim.x = 0;
-	line = steves_get_next_line(fd);
-	while (line)
-	{
-		dim.x = max(dim.x, (int)ft_strlen(line));
-		dim.y++;
-		free(line);
-		line = steves_get_next_line(fd);
-	}
-	free(line);
-	close(fd);
-	return (dim);
-}
-
-char	**allocate_map_memory(t_int_vector dim)
-{
-	char	**map;
-	int		i;
-
-	map = malloc(sizeof(char *) * (dim.y + 1));
-	i = 0;
-	while (i < dim.y)
-	{
-		map[i] = malloc(sizeof(char) * (dim.x + 1));
-		i++;
-	}
-	map[i] = NULL;
-	return (map);
-}
-
-void read_map_from_file(char **map, int fd)
-{
-	char	*line;
-	int		i;
-	int		j;
-
-	i = 0;
-	line = steves_get_next_line(fd);
-	while (line)
-	{
-		j = 0;
-		while (line[j] && line[j] != '\n')
-		{
-			map[i][j] = line[j];
-			j++;
-		}
-		map[i][j] = 0;
-		i++;
-		free(line);
-		line = steves_get_next_line(fd);
-	}
-	free(line);
-}
-
-char **init_raw_map(char *map_file)
-{
-	int				fd;
-	char			**map;
-	t_int_vector	dim;
-
-	dim = get_map_dimesnions_in_file(map_file);
-	if (dim.x == 0 || dim.y == 0)
-		my_error("Texture file is empty");
-	fd = open(map_file, O_RDONLY);
-	map = allocate_map_memory(dim);
-	read_map_from_file(map, fd);
-	close(fd);
-	return (map);
-}
-
-char **remove_newlines(char **map)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (map[i])
-	{
-		j = 0;
-		while (map[i][j])
-		{
-			if (map[i][j] == '\n')
-				map[i][j] = 0;
-			j++;
-		}
-		i++;
-	}
-	return (map);
-}
-
-char	**init_texture(char *texture_path)
-{
-	char	**texture;
-
-	texture = init_raw_map(texture_path);
-	return (texture);
-}
-
-int	draw_player(mlx_image_t *map_img, t_player *player, t_map *map)
-{
-	float				scaling_factor;
-	int					player_size;
-	int					top_left_x;
-	int					top_left_y;
-
-	scaling_factor = map->minimap_scaling_factor;
-	player_size = scaling_factor / 4;
-	top_left_x = player->pos.x * scaling_factor;
-	while (top_left_x < player->pos.x * scaling_factor + player_size)
-	{
-		top_left_y = player->pos.y * scaling_factor;
-		while (top_left_y < player->pos.y * scaling_factor + player_size)
-		{
-			mlx_put_pixel(map_img, top_left_x, top_left_y, get_rgba(GREEN));
-			top_left_y++;
-		}
-		top_left_x++;
-	}
-	return (0);
-}
-
-int	draw_map(mlx_image_t *map_img, t_map *map, t_player *player)
-{
-	uint32_t	x;
-	uint32_t	y;
-
-	x = 0;
-	y = 0;
-	while (map->mini_map[y])
-	{
-		while (map->mini_map[y][x])
-		{
-			if (map->mini_map[y][x] == '1')
-				mlx_put_pixel(map_img, x, y, get_rgba(WHITE));
-			else
-				mlx_put_pixel(map_img, x, y, get_rgba(BLACK));
-			x++;
-		}
-		x = 0;
-		y++;
-	}
-	draw_player(map_img, player, map);
-	return (0);
 }
 
 void	map_constructor(t_map *map, t_map_parsing *map_parsing)
 {
-	char		*map_file;
-
-	(void)map_parsing;
-	map_file = "./maps/map1.cub";
 	map->raw_map = map_parsing->cub3d_map;
+	map->floor_color = get_rgba(map_parsing->textures.floor1,
+			map_parsing->textures.floor2, map_parsing->textures.floor3, 255);
+	map->ceiling_color = get_rgba(map_parsing->textures.ceiling1, map_parsing
+			->textures.ceiling2, map_parsing->textures.ceiling3, 255);
 	map->raw_map = remove_newlines(map->raw_map);
 	map->raw_map_dimensions = get_map_dimesnions(map->raw_map);
 	map->south_texture.texture = init_texture(map_parsing->textures.south_path);
@@ -318,27 +134,4 @@ void	map_constructor(t_map *map, t_map_parsing *map_parsing)
 	map->minimap_scaling_factor = get_fscaling_factor(
 			map->raw_map_dimensions, map->minimap_dimensions);
 	map->mini_map = scale_map(map->raw_map, map->minimap_scaling_factor);
-}
-
-void	free_2d_array(char **array)
-{
-	int	i;
-
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
-}
-
-void	map_destructor(t_map *map)
-{
-	// free_2d_array(map->raw_map);
-	free_2d_array(map->mini_map);
-	free_2d_array(map->south_texture.texture);
-	free_2d_array(map->north_texture.texture);
-	free_2d_array(map->east_texture.texture);
-	free_2d_array(map->west_texture.texture);
 }

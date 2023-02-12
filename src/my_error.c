@@ -1,26 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   colors.h                                           :+:      :+:    :+:   */
+/*   my_error.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/30 19:52:22 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 18:51:39 by sdukic           ###   ########.fr       */
+/*   Created: 2023/02/11 22:01:27 by sdukic            #+#    #+#             */
+/*   Updated: 2023/02/12 18:27:41 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef COLORS_H
-# define COLORS_H
+#include "./include/my_error.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-int	get_rgba(int r, int g, int b, int a);
+void	my_error(char *str)
+{
+	printf("ERROR: %s\n", str);
+	exit(0);
+}
 
-int	get_r(int rgba);
-
-int	get_g(int rgba);
-
-int	get_b(int rgba);
-
-int	get_a(int rgba);
-
-#endif
+void	error(void)
+{
+	perror("Error");
+	exit(EXIT_FAILURE);
+}

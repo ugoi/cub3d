@@ -6,15 +6,13 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:36:42 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/11 00:37:20 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 19:05:03 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MY_MATH_H
 # define MY_MATH_H
 
-# define max(a, b) ((a) > (b) ? (a) : (b))
-# define min(a, b) ((a) < (b) ? (a) : (b))
 # define DEG_TO_RAD 0.01745329251994329576923690768489
 # define FOV 60.0
 # define RESOLUTION 0.1
