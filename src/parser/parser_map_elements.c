@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_map_elements.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/12 21:53:23 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 22:15:08 by bogunlan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -6,7 +18,7 @@
 #include <string.h>
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
-#include "parser.h"
+#include "../include/parser.h"
 
 int	is_composition_valid(char *tmp_map, char **map_line)
 {

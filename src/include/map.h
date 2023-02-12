@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:35:03 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 19:25:28 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 21:18:10 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include "player.h"
 # include "map.h"
 # include "MLX42.h"
-# include "../parser/parser.h"
+# include "./parser.h"
 
 typedef struct s_texture
 {

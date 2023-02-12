@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 17:47:23 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 21:19:58 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <math.h>
 #include "./include/map.h"
-#include "./parser/parser.h"
+#include "./include/parser.h"
 #include "../lib/gnl/get_next_line.h"
 
 int	main(int argc, char *argv[])
@@ -45,7 +45,7 @@ int	main(int argc, char *argv[])
 	error = parse_map(argv[1], &map_parsing);
 	if (error != 0)
 	{
-		printf("Error:%d:*\n", error);
+		cub3d_error_messg(error, &map_parsing);
 		return (EXIT_FAILURE);
 	}
 	map_constructor(&map, &map_parsing);

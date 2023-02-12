@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/12 21:56:44 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 22:27:13 by bogunlan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PARSER_H
 # define PARSER_H
 
@@ -55,6 +67,7 @@ typedef struct s_map_parsing
 	int			bottom_wall_valid;
 	int			floor_vals_set;
 	int			ceiling_vals_set;
+	int			at_wall;
 	char		*line;
 	t_textures	textures;
 	char		**cub3d_map;
@@ -91,6 +104,7 @@ typedef struct s_top_wall
 int		last_line_is_valid(char *last_line);
 int		get_line_before_wall(char **lines, int index);
 int		is_bottom_wall_valid(char *tmp_map);
+void	init_map_params(t_map_parsing *map);
 
 // Parser_left_wall
 int		is_left_wall_valid(char *tmp_map);
@@ -100,6 +114,16 @@ int		is_right_wall_valid(char *tmp_map);
 
 // Parser_top_wall
 int		is_top_wall_valid(char *tmp_map);
+int		is_first_line_wall(char *tmp_map);
+int		get_line_after_wall(char **lines);
+int		get_wall_start_1_index(char **split, int *line_index);
+int		get_wall_start_2_index(char **split, int *x);
+int		get_space_start_1_index(char **split, int *x);
+int		get_space_start_2_index(char **split, int *x);
+int		get_wall_end_1_index(char **split, int *x);
+int		get_wall_end_2_index(char **split, int *x);
+int		get_space_end_1_index(char **split, int *x);
+int		get_space_end_2_index(char **split, int *x);
 
 //Parser_cub3d
 int		check_map(t_map_parsing *map, char **cub_map, int *cub_map_index);
@@ -118,12 +142,17 @@ int		is_element(char *line);
 int		check_text_id(char *text_id, t_map_parsing *map);
 int		check_text_path(char *text_id, char *text_path, t_map_parsing *map);
 int		check_line(t_map_parsing *map, char **cub_map, int *cub_map_index);
+int		is_wall_texture_valid(char *text_line);
+int		check_texture(int fd);
 
 //Parser_surfaces
 int		is_valid_num(char *num);
 int		parse_map_floor(char *vals, t_map_parsing *map);
 int		parse_map_ceiling(char *vals, t_map_parsing *map);
 int		comma_separator_is_valid(char *texture_vals);
+int		check_comma_separator(char *surface);
+int		set_floor_vals(t_map_parsing *map, char **split_vals);
+int		set_ceiling_vals(t_map_parsing *map, char **split_vals);
 
 // Parser utils
 int		ft_map_word_count(char const *s, char c);

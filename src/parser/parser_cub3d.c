@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_cub3d.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/12 21:50:27 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 21:50:30 by bogunlan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -6,50 +18,14 @@
 #include <string.h>
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
-
-#include "parser.h"
-
-void	init_map_params(t_map_parsing *map)
-{
-	map->y = 0;
-	map->all_text_set = 0;
-	map->textures.east_id = 0;
-	map->textures.west_id = 0;
-	map->textures.north_id = 0;
-	map->textures.south_id = 0;
-	map->textures.floor_id = 0;
-	map->textures.ceiling_id = 0;
-	map->text_error = 0;
-}
-
-int	check_map(t_map_parsing *map, char **cub_map, int *cub_map_index)
-{
-	int	error;
-
-	init_map_params(map);
-	while (1)
-	{
-		map->x = 0;
-		map->line = get_next_line(map->fd);
-		if (!map->line)
-			return (no_errors);
-		error = check_line(map, cub_map, cub_map_index);
-		free(map->line);
-		if (error)
-		{
-			printf("Error:%d-\n", error);
-			return (error);
-		}
-	}
-	return (no_errors);
-}
+#include "../include/parser.h"
 
 void	open_cub_fiile(t_map_parsing *map, char *cub_file)
 {
 	map->fd = open(cub_file, O_RDONLY);
 	if (map->fd == -1)
 	{
-		printf("Error\nNo such directory\n");
+		cub3d_error_messg(file_error, NULL);
 		close(map->fd);
 		exit(EXIT_FAILURE);
 	}
@@ -60,7 +36,7 @@ int	check_player_position(t_map_parsing *map)
 	if (map->player_start_position != 1)
 	{
 		close(map->fd);
-		return (elements_error);
+		return (map_error);
 	}
 	return (no_errors);
 }
@@ -69,16 +45,18 @@ int	parse_map(char *cub_file, t_map_parsing *map)
 {
 	static char	*cub_map[MAX_ARG];
 	static int	cub_map_index;
+	int			error;
 
 	map->player_start_position = 0;
 	open_cub_fiile(map, cub_file);
-	if (check_map(map, cub_map, &cub_map_index) != no_errors)
+	error = check_map(map, cub_map, &cub_map_index);
+	if (error)
 	{
 		close(map->fd);
-		return (map_error);
+		return (error);
 	}
 	if (check_player_position(map) != no_errors)
-		return (elements_error);
+		return (map_error);
 	if (!is_top_wall_valid(map->tmp_map) || \
 !is_bottom_wall_valid(map->tmp_map) || \
 !is_right_wall_valid(map->tmp_map) || !is_left_wall_valid(map->tmp_map)
@@ -114,7 +92,7 @@ int	is_file_valid(char *argv[])
 	}
 	if (!params.valid_file)
 	{
-		printf("Error\nFile format not valid\n");
+		cub3d_error_messg(file_error, NULL);
 		return (file_error);
 	}
 	return (0);

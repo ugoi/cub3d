@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   map_remove_new_lines.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 18:14:39 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 19:26:53 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 21:18:41 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./parser/parser.h"
+#include "./parser.h"
 #include <stdlib.h>
 
 char	**remove_newlines(char **map)

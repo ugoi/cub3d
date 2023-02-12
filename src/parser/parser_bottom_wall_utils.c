@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_error_messg.c                               :+:      :+:    :+:   */
+/*   parser_bottom_wall_utils.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/12 21:50:53 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:50:55 by bogunlan         ###   ########.fr       */
+/*   Created: 2023/02/12 21:49:25 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 21:49:29 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,36 @@
 #include "../../lib/libft/libft.h"
 #include "../include/parser.h"
 
-void	cub3d_error_messg(int err, t_map_parsing *map)
+int	last_line_is_valid(char *last_line)
 {
-	if (err == map_error || err == elements_error)
+	int	i;
+
+	i = 0;
+	while (last_line[i] == ' ')
+		i++;
+	while (last_line[i])
 	{
-		printf("Error\nMap error\n");
-		if (map)
+		if (last_line[i] != '1')
+			return (FALSE);
+		i++;
+	}
+	return (TRUE);
+}
+
+int	get_line_before_wall(char **lines, int index)
+{
+	int	i;
+
+	while (index >= 0)
+	{
+		i = 0;
+		while (lines[index][i])
 		{
-			if (map->player_start_position > 1)
-				printf("%d players spawned\n", map->player_start_position);
+			if (lines[index][i] == '0')
+				return (index);
+			i++;
 		}
+		index--;
 	}
-	if (err == texture_error)
-	{
-		printf("Error\nTexture error\n");
-	}
-	if (err == wall_error)
-	{
-		printf("Error\nWall error\n");
-	}
-	if (err == file_error)
-	{
-		printf("Error\nNo such file or directory\n");
-	}
+	return (index);
 }

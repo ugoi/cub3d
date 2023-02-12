@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_error_messg.c                               :+:      :+:    :+:   */
+/*   parser_top_wall_utils.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/12 21:50:53 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:50:55 by bogunlan         ###   ########.fr       */
+/*   Created: 2023/02/12 21:55:24 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 21:55:27 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,49 @@
 #include "../../lib/libft/libft.h"
 #include "../include/parser.h"
 
-void	cub3d_error_messg(int err, t_map_parsing *map)
+int	is_first_line_wall(char *tmp_map)
 {
-	if (err == map_error || err == elements_error)
+	int	i;
+	int	in_map;
+
+	i = 0;
+	in_map = 0;
+	while (tmp_map[i] && !in_map)
 	{
-		printf("Error\nMap error\n");
-		if (map)
+		if (tmp_map[i] != '\n')
 		{
-			if (map->player_start_position > 1)
-				printf("%d players spawned\n", map->player_start_position);
+			in_map = 1;
+			while (in_map)
+			{
+				if (tmp_map[i] != '1' && tmp_map[i] != ' ' && \
+				tmp_map[i] != '\n')
+					return (FALSE);
+				if (tmp_map[i] == '\n' || tmp_map[i] == '\0')
+					break ;
+				i++;
+			}
 		}
+		i++;
 	}
-	if (err == texture_error)
+	return (TRUE);
+}
+
+int	get_line_after_wall(char **lines)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (lines[i])
 	{
-		printf("Error\nTexture error\n");
+		j = 0;
+		while (lines[i][j])
+		{
+			if (lines[i][j] == '0')
+				return (i);
+			j++;
+		}
+		i++;
 	}
-	if (err == wall_error)
-	{
-		printf("Error\nWall error\n");
-	}
-	if (err == file_error)
-	{
-		printf("Error\nNo such file or directory\n");
-	}
+	return (-1);
 }

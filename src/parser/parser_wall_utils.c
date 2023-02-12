@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_wall_utils.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/12 21:56:03 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 21:56:05 by bogunlan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -7,7 +19,7 @@
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
 
-#include "parser.h"
+#include "../include/parser.h"
 
 int	ft_wall_word_count(char const *s, char c)
 {

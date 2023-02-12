@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/12 21:55:56 by bogunlan          #+#    #+#             */
+/*   Updated: 2023/02/12 21:55:58 by bogunlan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -6,8 +18,7 @@
 #include <string.h>
 #include "../../lib/gnl/get_next_line.h"
 #include "../../lib/libft/libft.h"
-
-#include "parser.h"
+#include "../include/parser.h"
 
 int	ft_map_word_count(char const *s, char c)
 {
