@@ -1,5 +1,5 @@
 # Define compiler
-CC = cc -Wall -Wextra -Werror
+CC = cc -Wall -Wextra -Werror -g -fsanitize=address
 
 BREW = $(shell which brew | rev | cut -c 9- | rev)
 BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)

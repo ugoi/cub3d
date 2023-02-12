@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:35:03 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 18:39:35 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 19:25:28 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,5 @@ char			**allocate_map_memory(t_int_vector dim);
 void			read_texture_from_file(char **map, int fd);
 char			**init_texture(char *map_file);
 char			**remove_newlines(char **map);
+void			parser_cleaner(t_map_parsing *parser);
 #endif

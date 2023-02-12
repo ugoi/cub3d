@@ -6,9 +6,12 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 18:14:39 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 18:14:41 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 19:26:53 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "./parser/parser.h"
+#include <stdlib.h>
 
 char	**remove_newlines(char **map)
 {
@@ -28,4 +31,12 @@ char	**remove_newlines(char **map)
 		i++;
 	}
 	return (map);
+}
+
+void	parser_cleaner(t_map_parsing *parser)
+{
+	free(parser->textures.north_path);
+	free(parser->textures.south_path);
+	free(parser->textures.east_path);
+	free(parser->textures.west_path);
 }

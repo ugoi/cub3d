@@ -6,7 +6,7 @@
 /*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 19:04:14 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/12 19:23:43 by sdukic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ void	map_constructor(t_map *map, t_map_parsing *map_parsing)
 	map->east_texture.dimensions = get_map_dimesnions(
 			map->east_texture.texture);
 	map->west_texture.texture = init_texture(map_parsing->textures.west_path);
+	parser_cleaner(map_parsing);
 	map->west_texture.dimensions = get_map_dimesnions(
 			map->west_texture.texture);
 	map->minimap_dimensions = (t_int_vector){WIDTH / 4, WIDTH / 4};
