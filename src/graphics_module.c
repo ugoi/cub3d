@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 18:44:51 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 01:17:05 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

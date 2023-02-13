@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 21:19:58 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 05:14:44 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ int	main(int argc, char *argv[])
 	error = parse_map(argv[1], &map_parsing);
 	if (error != 0)
 	{
+		parser_clean_up(&map_parsing);
 		cub3d_error_messg(error, &map_parsing);
 		return (EXIT_FAILURE);
 	}

@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:55:56 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:55:58 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 03:59:35 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,16 @@ char	**ft_map_split(char const *s, char c)
 
 void	parser_clean_up(t_map_parsing *map)
 {
+	int	i;
+
+	i = 0;
 	free(map->textures.north_path);
 	free(map->textures.south_path);
 	free(map->textures.west_path);
 	free(map->textures.east_path);
+	while (map->cub3d_map[i])
+	{
+		free(map->cub3d_map[i]);
+		i++;
+	}
 }

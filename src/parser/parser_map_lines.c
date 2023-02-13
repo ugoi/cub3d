@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:54:16 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 22:58:39 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 06:44:26 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,11 @@ int	check_line(t_map_parsing *map, char **cub_map, int *cub_map_index)
 {
 	int		error;
 
+	if (((*(map->line) == ' ' && (*(map->line + 1)) == '\0') || \
+		(*(map->line) == ' ' && (*(map->line + 1)) == ' ')) && \
+		(ft_strchr(map->line, '1') == NULL)
+	)
+		return (map_error);
 	if (*(map->line) == '\n' && map->at_wall != 1)
 		return (no_errors);
 	if (is_element(map->line) != no_errors)

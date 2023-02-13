@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:56:44 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 22:27:13 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 03:43:40 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ typedef struct s_map_parsing
 	int			floor_vals_set;
 	int			ceiling_vals_set;
 	int			at_wall;
+	int			map_has_nl;
 	char		*line;
 	t_textures	textures;
 	char		**cub3d_map;
@@ -158,6 +159,7 @@ int		set_ceiling_vals(t_map_parsing *map, char **split_vals);
 int		ft_map_word_count(char const *s, char c);
 char	**ft_map_gen(const char *s, char c, char **res, int res_st_i);
 char	**ft_map_split(char const *s, char c);
+void	parser_clean_up(t_map_parsing *map_parsing);
 
 // Parser_wall_utils
 int		ft_wall_word_count(char const *s, char c);

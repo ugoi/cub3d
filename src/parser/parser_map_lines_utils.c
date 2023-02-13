@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:54:00 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:54:03 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 04:03:18 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,8 @@ split[0][0] != 'W' && split[0][0] != 'E' && split[0][0] != 'F' && \
 split[0][0] != 'C' && split[0][0] != '0' && split[0][0] != '1'
 	)
 	{
-		return (texture_error);
 		ft_free(split);
+		return (texture_error);
 	}
 	ft_free(split);
 	return (no_errors);

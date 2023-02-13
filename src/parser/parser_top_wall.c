@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:55:45 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:55:47 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 06:43:27 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,9 @@ int	map_not_enclosed(t_top_wall *top_wall)
 	(top_wall->wall_start_2_index < top_wall->space_start_2_index && \
 	top_wall->wall_start_2_index != 0)
 	)
+	{
 		return (TRUE);
+	}
 	return (FALSE);
 }
 

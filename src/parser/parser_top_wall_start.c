@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:55:14 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:55:16 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 06:44:44 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,11 @@ int	get_space_start_1_index(char **split, int *x)
 	int		space_start_1_index;
 
 	space_start_1 = ft_strchr(split[*x + 1], '0');
-	space_start_1_index = ft_strlen(split[*x + 1]) - ft_strlen(space_start_1);
+	if (space_start_1 != NULL)
+		space_start_1_index = ft_strlen(split[*x + 1]) - \
+		ft_strlen(space_start_1);
+	else
+		space_start_1_index = ft_strlen(split[*x + 1]);
 	return (space_start_1_index);
 }
 

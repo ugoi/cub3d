@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:50:27 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:50:30 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 05:58:40 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,31 @@ int	check_player_position(t_map_parsing *map)
 	return (no_errors);
 }
 
+int	map_has_nl_at_end(char **cub3d_map)
+{
+	int	i;
+
+	i = 0;
+	while (cub3d_map[i])
+		i++;
+	if (ft_strchr(cub3d_map[i - 1], '\n'))
+		return (TRUE);
+	return (FALSE);
+}
+
+int	check_wall_sides(t_map_parsing *map)
+{
+	if (!is_top_wall_valid(map->tmp_map) || \
+!is_bottom_wall_valid(map->tmp_map) || \
+!is_right_wall_valid(map->tmp_map) || !is_left_wall_valid(map->tmp_map)
+	)
+	{
+		close(map->fd);
+		return (wall_error);
+	}
+	return (no_errors);
+}
+
 int	parse_map(char *cub_file, t_map_parsing *map)
 {
 	static char	*cub_map[MAX_ARG];
@@ -48,6 +73,7 @@ int	parse_map(char *cub_file, t_map_parsing *map)
 	int			error;
 
 	map->player_start_position = 0;
+	map->cub3d_map = cub_map;
 	open_cub_fiile(map, cub_file);
 	error = check_map(map, cub_map, &cub_map_index);
 	if (error)
@@ -57,43 +83,10 @@ int	parse_map(char *cub_file, t_map_parsing *map)
 	}
 	if (check_player_position(map) != no_errors)
 		return (map_error);
-	if (!is_top_wall_valid(map->tmp_map) || \
-!is_bottom_wall_valid(map->tmp_map) || \
-!is_right_wall_valid(map->tmp_map) || !is_left_wall_valid(map->tmp_map)
-	)
-	{
-		close(map->fd);
-		return (wall_error);
-	}
-	map->cub3d_map = cub_map;
+	if (check_wall_sides(map) != no_errors)
+		return (map_error);
 	close(map->fd);
-	return (0);
-}
-
-int	is_file_valid(char *argv[])
-{
-	t_params	params;
-
-	params.i = 0;
-	params.valid_file = 0;
-	while (argv[1][params.i] != '\0')
-	{
-		if (argv[1][params.i] == '.')
-		{
-			if (argv[1][params.i + 1] == 'c' && argv[1][params.i + 2] == 'u'
-			&& argv[1][params.i + 3] == 'b')
-			{
-				if (argv[1][params.i + 4] != '\0')
-					break ;
-				params.valid_file = 1;
-			}
-		}
-		params.i++;
-	}
-	if (!params.valid_file)
-	{
-		cub3d_error_messg(file_error, NULL);
-		return (file_error);
-	}
+	if (map_has_nl_at_end(map->cub3d_map))
+		return (map_error);
 	return (0);
 }
