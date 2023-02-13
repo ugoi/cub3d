@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   my_math.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:36:42 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 19:05:03 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 10:46:09 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define MY_MATH_H
 
 # define DEG_TO_RAD 0.01745329251994329576923690768489
-# define FOV 60.0
+# define FOV 30.0
 # define RESOLUTION 0.1
 # define WIDTH 800
 # define HEIGHT 600

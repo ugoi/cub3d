@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   taycasting_utils2.c                                :+:      :+:    :+:   */
+/*   raycasting_utils2.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 16:54:53 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 17:07:44 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 10:45:33 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include "./include/ray.h"
 #include "./include/my_error.h"
 #include "./include/player.h"
+#include "../lib/libft/libft.h"
 
 t_ray	calculate_first_horizontal_ray(t_vars *vars, float angle)
 {
@@ -93,12 +94,13 @@ t_float_vector	calculate_horizontal_ray_dest(t_vars *vars, t_ray ray)
 		else
 			ray.dest_in_map.y = (int)ray.dest.y;
 		ray.dest_in_map.x = (int)ray.dest.x;
-		if (ray.dest_in_map.x < vars->map->raw_map_dimensions.x
-			&& ray.dest_in_map.x >= 0
-			&& ray.dest_in_map.y < vars->map->raw_map_dimensions.y
-			&& ray.dest_in_map.y >= 0
-			&& vars->map->raw_map[ray.dest_in_map.y]
-			[ray.dest_in_map.x] == '1')
+		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x
+			|| ray.dest_in_map.y >= vars->map->raw_map_dimensions.y
+			|| (ray.dest_in_map.y < 0
+			|| ray.dest_in_map.x < 0
+			|| vars->map->raw_map[ray.dest_in_map.y] == NULL
+			|| ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y])
+			|| vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
 			break ;
 		else
 			ray.dest = add_vectors(ray.dest, ray.offset);
@@ -120,11 +122,13 @@ t_float_vector	calculate_vertical_ray_dest(t_vars *vars, t_ray ray)
 		else
 			ray.dest_in_map.x = (int)ray.dest.x;
 		ray.dest_in_map.y = (int)ray.dest.y;
-		if (ray.dest_in_map.x < vars->map->raw_map_dimensions.x
-			&& ray.dest_in_map.y >= 0
-			&& ray.dest_in_map.y < vars->map->raw_map_dimensions.y
-			&& ray.dest_in_map.x >= 0
-			&& vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1')
+		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x
+			|| ray.dest_in_map.y >= vars->map->raw_map_dimensions.y
+			|| (ray.dest_in_map.y < 0
+			|| ray.dest_in_map.x < 0
+			|| vars->map->raw_map[ray.dest_in_map.y] == NULL
+			|| ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y])
+			|| vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
 			break ;
 		else
 			ray.dest = add_vectors(ray.dest, ray.offset);
