@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:56:44 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 21:54:05 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/14 00:33:27 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,10 +148,9 @@ int		check_map_composition(char *line, char *tmp_map);
 int		split_count(char **split);
 int		is_element(char *line);
 int		check_text_id(char *text_id, t_map_parsing *map);
-int		check_text_path(char *text_id, char *text_path, t_map_parsing *map);
 int		check_line(t_map_parsing *map, char **cub_map, int *cub_map_index);
 int		is_wall_texture_valid(char *text_line);
-int		check_texture(int fd);
+int		check_texture(int fd, char *texture_path);
 
 //Parser_surfaces
 int		is_valid_num(char *num);
@@ -172,5 +171,11 @@ void	parser_clean_up(t_map_parsing *map_parsing);
 int		ft_wall_word_count(char const *s, char c);
 char	**ft_wall_gen(const char *s, char c, char **res, int res_st_i);
 char	**ft_wall_split(char const *s, char c);
+
+// Parser_map_textures
+int		check_text_path(char *text_id, char *text_path, t_map_parsing *map);
+int		check_text_surface(t_map_parsing *map, char **split);
+int		is_text_id_valid(char **split, t_map_parsing *map);
+int		is_text_path_valid(char **split, t_map_parsing *map);
 
 #endif

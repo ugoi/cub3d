@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:54:16 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 06:44:26 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/14 00:28:59 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,49 +20,6 @@
 #include "../../lib/libft/libft.h"
 #include "../include/parser.h"
 
-int	check_text_path(char *text_id, char *text_path, t_map_parsing *map)
-{
-	int		fd;
-	char	*tmp_path;
-
-	tmp_path = ft_substr(text_path, 0, ft_strlen(text_path) - 1);
-	fd = open(tmp_path, O_RDONLY);
-	if (fd == -1)
-	{
-		map->text_error = 1;
-		free(tmp_path);
-		return (file_error);
-	}
-	if (check_texture(fd) != no_errors)
-		return (texture_error);
-	close(fd);
-	if (strncmp(text_id, "NO", 3) == 0)
-		map->textures.north_path = ft_strdup(tmp_path);
-	else if (strncmp(text_id, "SO", 3) == 0)
-		map->textures.south_path = ft_strdup(tmp_path);
-	else if (strncmp(text_id, "WE", 3) == 0)
-		map->textures.west_path = ft_strdup(tmp_path);
-	else if (strncmp(text_id, "EA", 3) == 0)
-		map->textures.east_path = ft_strdup(tmp_path);
-	free(tmp_path);
-	return (no_errors);
-}
-
-int	is_surface_valid(t_map_parsing *map, char **split)
-{
-	if (map->textures.floor_id == 1 && !map->floor_vals_set)
-	{
-		if (parse_map_floor(split[1], map) != no_errors)
-			return (map_error);
-	}
-	else if (map->textures.ceiling_id == 1 && !map->ceiling_vals_set)
-	{
-		if (parse_map_ceiling(split[1], map) != no_errors)
-			return (map_error);
-	}
-	return (no_errors);
-}
-
 int	is_line_valid(t_map_parsing *map)
 {
 	char	**split;
@@ -73,16 +30,19 @@ int	is_line_valid(t_map_parsing *map)
 		split = ft_split(map->line, ' ');
 		if (!split)
 			return (map_error);
-		if (check_text_id(split[0], map) != no_errors)
+		if (is_text_id_valid(split, map) != no_errors)
 			return (elements_error);
 		if (*(split[0]) != 'F' && *(split[0]) != 'C')
 		{
-			error = check_text_path(split[0], split[1], map);
+			error = is_text_path_valid(split, map);
 			if (error)
 				return (error);
 		}
-		if (is_surface_valid(map, split) != no_errors)
+		if (check_text_surface(map, split) != no_errors)
+		{
+			ft_free(split);
 			return (map_error);
+		}
 		ft_free(split);
 	}
 	return (no_errors);

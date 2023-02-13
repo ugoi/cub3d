@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:54:00 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 04:03:18 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/14 00:22:52 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ strchr(text_line, '\n') != NULL)
 	return (error);
 }
 
-int	check_texture(int fd)
+int	check_texture(int fd, char *texture_path)
 {
 	int		i;
 	char	*texture_line;
@@ -111,6 +111,7 @@ int	check_texture(int fd)
 		if (is_wall_texture_valid(texture_line) != no_errors || i == 0)
 		{
 			free(texture_line);
+			free(texture_path);
 			close(fd);
 			return (texture_error);
 		}

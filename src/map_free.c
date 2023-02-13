@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_utils.c                                        :+:      :+:    :+:   */
+/*   map_free.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/09 16:24:21 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 18:00:24 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 23:47:14 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,17 @@ void	free_2d_array(char **array)
 
 void	map_destructor(t_map *map)
 {
+	int	i;
+
 	free_2d_array(map->mini_map);
 	free_2d_array(map->south_texture.texture);
 	free_2d_array(map->north_texture.texture);
 	free_2d_array(map->east_texture.texture);
 	free_2d_array(map->west_texture.texture);
+	i = 0;
+	while (map->raw_map[i])
+	{
+		free(map->raw_map[i]);
+		i++;
+	}
 }
