@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/29 16:10:52 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 18:44:51 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 01:11:30 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,46 @@ void	my_mlx_close(void *param)
 	mlx_terminate(vars->mlx);
 	printf("Closing window\n");
 	exit(0);
+}
+
+float	get_dir_from_key(int key)
+{
+	float	dir;
+
+	dir = 0;
+	if (key == MLX_KEY_W)
+		dir = 0;
+	if (key == MLX_KEY_S)
+		dir = M_PI;
+	if (key == MLX_KEY_A)
+		dir = 3 * M_PI / 2;
+	if (key == MLX_KEY_D)
+		dir = M_PI / 2;
+	if (key == MLX_KEY_LEFT)
+		dir = -0.1;
+	if (key == MLX_KEY_RIGHT)
+		dir = 0.1;
+	return (dir);
+	return (0);
+}
+
+void	my_keyhook(mlx_key_data_t keydata, void *param)
+{
+	t_vars	*vars;
+	float	dir;
+
+	vars = (t_vars *)param;
+	dir = get_dir_from_key(keydata.key);
+	if (keydata.key == MLX_KEY_W || keydata.key == MLX_KEY_S
+		|| keydata.key == MLX_KEY_A || keydata.key == MLX_KEY_D)
+		move_player(1, dir, vars->player, *vars->map);
+	if (keydata.key == MLX_KEY_LEFT || keydata.key == MLX_KEY_RIGHT)
+		rotate_player(dir, vars->player);
+	if (keydata.key == MLX_KEY_ESCAPE)
+		my_mlx_close(vars);
+	draw_map(vars->map_img, vars->map, vars->player);
+	draw_player(vars->map_img, vars->player, vars->map);
+	raycast3d(vars);
 }
 
 int32_t	init_window(t_map *map, t_player *player)
