@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 19:35:03 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/12 21:18:10 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 00:32:40 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define MAP_H
 
 # include "my_math.h"
-# include "player.h"
 # include "map.h"
 # include "MLX42.h"
 # include "./parser.h"
@@ -49,8 +48,6 @@ float			get_fscaling_factor(t_int_vector raw_dimensions,
 char			**init_texture(char *map_file);
 t_int_vector	get_map_dimesnions(char **map);
 void			map_constructor(t_map *map, t_map_parsing *map_parsing);
-int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
-int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
 char			**init_texture(char *texture_path);
 void			map_destructor(t_map *map);
 t_int_vector	get_texture_dim_in_file(char *map_file);

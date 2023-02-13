@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   graphics_module.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdukic <sdukic@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/30 19:24:23 by stefan            #+#    #+#             */
-/*   Updated: 2023/02/12 18:52:17 by sdukic           ###   ########.fr       */
+/*   Updated: 2023/02/13 00:28:21 by stefan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,6 @@ uint32_t		get_color_from_texture(t_texture texture,
 					t_int_vector texture_iter);
 void			draw_3d_walls(t_vars *vars, t_ray shortest_ray, int i,
 					t_texture texture);
-void			move_player_up(t_vars *vars);
-void			move_player_down(t_vars *vars);
-void			move_player_left(t_vars *vars);
-void			move_player_right(t_vars *vars);
-void			rotate_player_left(t_vars *vars);
-void			rotate_player_right(t_vars *vars);
 void			raycast3d(t_vars *vars);
 void			my_keyhook(mlx_key_data_t keydata, void *param);
 void			my_mlx_close(void *param);
@@ -72,5 +66,7 @@ t_ray			calculate_first_horizontal_ray(t_vars *vars, float angle);
 t_ray			calculate_first_vertical_ray(t_vars *vars, float angle);
 t_float_vector	calculate_horizontal_ray_dest(t_vars *vars, t_ray ray);
 t_float_vector	calculate_vertical_ray_dest(t_vars *vars, t_ray ray);
+int				draw_player(mlx_image_t *map_img, t_player *player, t_map *map);
+int				draw_map(mlx_image_t *map_img, t_map *map, t_player *player);
 
 #endif

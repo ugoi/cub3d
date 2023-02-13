@@ -1,5 +1,5 @@
 # Define compiler
-CC = cc -Wall -Wextra -Werror -g -fsanitize=address
+CC = cc -Wall -Wextra -Werror
 
 BREW = $(shell which brew | rev | cut -c 9- | rev)
 BREW_VERSION = $(shell ls $(BREW)/Cellar/glfw/)
@@ -23,7 +23,7 @@ MLX42_INCLUDES = -I./lib/MLX42/include
 TEST_INCLUDES = -I./$(UNITY_SRCDIR) $(INCLUDES) $(GLFW_INCLUDES) $(MLX42_INCLUDES)
 
 # Define compiler flags
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = 
 TEST_CFLAGS =
 
 # Define main source file
