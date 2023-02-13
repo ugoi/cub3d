@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:55:45 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 06:43:27 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 22:20:56 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,14 +56,19 @@ void	modify_map(char **split)
 	}
 }
 
-int	map_not_enclosed(t_top_wall *top_wall)
+int	player_out_of_top(char **split, t_top_wall *top_wall, int *index)
 {
-	if (top_wall->wall_end_1_index < top_wall->space_end_1_index || \
-	top_wall->wall_end_2_index > top_wall->space_end_2_index || \
-	top_wall->wall_start_1_index > top_wall->space_start_1_index || \
-	(top_wall->wall_start_2_index < top_wall->space_start_2_index && \
-	top_wall->wall_start_2_index != 0)
-	)
+	int	x;
+
+	x = *index;
+	if (split[x - 1])
+	{
+		if ((int) ft_strlen(split[x - 1]) <= top_wall->player_position)
+			return (TRUE);
+		if (split[x - 1][top_wall->player_position] == ' ')
+			return (TRUE);
+	}
+	if (ft_strlen(split[x + 1]) <= top_wall->player_position)
 	{
 		return (TRUE);
 	}
@@ -82,14 +87,12 @@ int	is_map_enclosed(char **split)
 	while (top_wall.line_after_wall < split_count(split) - 1)
 	{
 		x = top_wall.line_after_wall - 1;
-		top_wall.wall_end_1_index = get_wall_end_1_index(split, &x);
-		top_wall.wall_end_2_index = get_wall_end_2_index(split, &x);
-		top_wall.space_end_1_index = get_space_end_1_index(split, &x);
-		top_wall.space_end_2_index = get_space_end_2_index(split, &x);
-		top_wall.wall_start_1_index = get_wall_start_1_index(split, &x);
-		top_wall.wall_start_2_index = get_wall_start_2_index(split, &x);
-		top_wall.space_start_1_index = get_space_start_1_index(split, &x);
-		top_wall.space_start_2_index = get_space_start_2_index(split, &x);
+		set_top_wall_params(split, &top_wall, &x);
+		if (top_wall.player_position != 0)
+		{
+			if (player_out_of_top(split, &top_wall, &x))
+				return (FALSE);
+		}
 		if (map_not_enclosed(&top_wall))
 			return (FALSE);
 		top_wall.line_after_wall++;

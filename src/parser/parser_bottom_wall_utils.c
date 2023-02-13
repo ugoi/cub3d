@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:49:25 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/12 21:49:29 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 21:39:51 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,64 @@ int	get_line_before_wall(char **lines, int index)
 			i++;
 		}
 		index--;
+	}
+	return (index);
+}
+
+int	get_empty_space_index(char *line)
+{
+	int	i;
+	int	in_map;
+	int	map_len;
+	int	prev;
+
+	i = 0;
+	in_map = 0;
+	map_len = ft_strlen(line);
+	prev = 0;
+	while (i < map_len && line[i])
+	{
+		if (line[i] != ' ')
+			in_map = 1;
+		while (in_map && i < map_len)
+		{
+			if (line[i] == ' ')
+			{
+				if (line[i + 1] != '\0')
+					return (i);
+			}
+			i++;
+		}
+		i++;
+	}
+	return (0);
+}
+
+int	get_empty_space_at_end_index(char *line)
+{
+	int	i;
+	int	index;
+	int	in_map;
+	int	map_len;
+
+	i = 0;
+	index = 0;
+	in_map = 0;
+	map_len = ft_strlen(line);
+	while (i < map_len && line[i])
+	{
+		if (line[i] != ' ')
+			in_map = 1;
+		while (in_map && i < map_len)
+		{
+			if (line[i] == ' ')
+			{
+				if (line[i + 1] != '\0')
+					index = i;
+			}
+			i++;
+		}
+		i++;
 	}
 	return (index);
 }

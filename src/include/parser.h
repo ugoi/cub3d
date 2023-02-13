@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:56:44 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 03:43:40 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 21:54:05 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ typedef struct s_b_wall
 	int		space_start_index;
 	int		empty_space_index;
 	int		empty_space_at_end_index;
+	int		player_position;
 }				t_b_wall;
 
 typedef struct s_top_wall
@@ -99,6 +100,7 @@ typedef struct s_top_wall
 	int	wall_start_2_index;
 	int	space_start_1_index;
 	int	space_start_2_index;
+	int	player_position;
 }				t_top_wall;
 
 //Parser_bottom_wall
@@ -106,6 +108,8 @@ int		last_line_is_valid(char *last_line);
 int		get_line_before_wall(char **lines, int index);
 int		is_bottom_wall_valid(char *tmp_map);
 void	init_map_params(t_map_parsing *map);
+int		get_empty_space_index(char *line);
+int		get_empty_space_at_end_index(char *line);
 
 // Parser_left_wall
 int		is_left_wall_valid(char *tmp_map);
@@ -125,6 +129,9 @@ int		get_wall_end_1_index(char **split, int *x);
 int		get_wall_end_2_index(char **split, int *x);
 int		get_space_end_1_index(char **split, int *x);
 int		get_space_end_2_index(char **split, int *x);
+int		get_player_position(char **split, int *x);
+void	set_top_wall_params(char **split, t_top_wall *top_wall, int *index);
+int		map_not_enclosed(t_top_wall *top_wall);
 
 //Parser_cub3d
 int		check_map(t_map_parsing *map, char **cub_map, int *cub_map_index);

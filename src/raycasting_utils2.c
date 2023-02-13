@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycasting_utils2.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stefan <stefan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 16:54:53 by sdukic            #+#    #+#             */
-/*   Updated: 2023/02/13 10:45:33 by stefan           ###   ########.fr       */
+/*   Updated: 2023/02/13 22:07:36 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,13 +94,12 @@ t_float_vector	calculate_horizontal_ray_dest(t_vars *vars, t_ray ray)
 		else
 			ray.dest_in_map.y = (int)ray.dest.y;
 		ray.dest_in_map.x = (int)ray.dest.x;
-		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x
-			|| ray.dest_in_map.y >= vars->map->raw_map_dimensions.y
-			|| (ray.dest_in_map.y < 0
-			|| ray.dest_in_map.x < 0
-			|| vars->map->raw_map[ray.dest_in_map.y] == NULL
-			|| ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y])
-			|| vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
+		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x || \
+	ray.dest_in_map.y >= vars->map->raw_map_dimensions.y || \
+	(ray.dest_in_map.y < 0 || ray.dest_in_map.x < 0 || \
+	vars->map->raw_map[ray.dest_in_map.y] == NULL || \
+	ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y]) || \
+	vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
 			break ;
 		else
 			ray.dest = add_vectors(ray.dest, ray.offset);
@@ -122,13 +121,13 @@ t_float_vector	calculate_vertical_ray_dest(t_vars *vars, t_ray ray)
 		else
 			ray.dest_in_map.x = (int)ray.dest.x;
 		ray.dest_in_map.y = (int)ray.dest.y;
-		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x
-			|| ray.dest_in_map.y >= vars->map->raw_map_dimensions.y
-			|| (ray.dest_in_map.y < 0
-			|| ray.dest_in_map.x < 0
-			|| vars->map->raw_map[ray.dest_in_map.y] == NULL
-			|| ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y])
-			|| vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
+		if (ray.dest_in_map.x >= vars->map->raw_map_dimensions.x || \
+	ray.dest_in_map.y >= vars->map->raw_map_dimensions.y || \
+	(ray.dest_in_map.y < 0 || \
+	ray.dest_in_map.x < 0 || \
+	vars->map->raw_map[ray.dest_in_map.y] == NULL || \
+	ray.dest_in_map.x >= ft_strlen(vars->map->raw_map[ray.dest_in_map.y]) || \
+	vars->map->raw_map[ray.dest_in_map.y][ray.dest_in_map.x] == '1'))
 			break ;
 		else
 			ray.dest = add_vectors(ray.dest, ray.offset);

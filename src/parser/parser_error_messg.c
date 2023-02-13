@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 21:50:53 by bogunlan          #+#    #+#             */
-/*   Updated: 2023/02/13 06:45:08 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/02/13 22:12:28 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,6 @@ void	cub3d_error_messg(int err, t_map_parsing *map)
 	if (err == map_error || err == elements_error)
 	{
 		printf("Error\nMap error\n");
-		if (map)
-		{
-			if (map->player_start_position != 1)
-				printf("%d players spawned\n", map->player_start_position);
-		}
 	}
 	if (err == texture_error)
 	{
