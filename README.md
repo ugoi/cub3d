@@ -111,3 +111,12 @@ C 225,30,0
 11110111 1110101 101111010001
 11111111111111111111111111111
 ```
+
+<footer>
+        <section id="authors">
+        <h2>Authors</h2>
+        <p>
+            CUB3D was created by <a href="https://github.com/UGOI" target="_blank">UGOI</a> and <a href="https://github.com/JideOgunlana" target="_blank">jide_O </a> as part of the 42 school curriculum.
+        </p>
+    </section>
+</footer>
