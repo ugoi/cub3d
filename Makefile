@@ -42,7 +42,7 @@ TEST_OBJ = $(TEST_OBJDIR)/test_my_module.o
 UNITY_OBJ = $(UNITY_OBJDIR)/unity.o
 
 # Define executables
-EXE = a.out
+EXE = cub3D
 TEST_EXE = test.out
 
 # Define default target

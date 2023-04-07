@@ -46,7 +46,7 @@
         </p>
 
 ```console
-./cub3d <path/to/map.cub> 
+./cub3D <path/to/map.cub> 
 ```
 
 Replace <path/to/map.cub> with the path to your scene description file with the .cub extension.
